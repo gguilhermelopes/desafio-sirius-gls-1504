@@ -11,11 +11,11 @@ export default function LoginPage() {
         <span className="auth-brand">{messages.common.appName}</span>
         <h1>{messages.auth.loginTitle}</h1>
         <p>{messages.auth.loginDescription}</p>
-        <form className="auth-form">
+        <div aria-label="Login form shell" className="auth-form">
           <input aria-label="E-mail" type="email" />
           <input aria-label="Senha" type="password" />
-          <button type="submit">{messages.auth.loginButton}</button>
-        </form>
+          <button type="button">{messages.auth.loginButton}</button>
+        </div>
         <Link href="/register">{messages.auth.registerLink}</Link>
       </section>
     </main>
