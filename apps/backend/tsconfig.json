@@ -1,0 +1,7 @@
+{
+  "extends": "@juscash/typescript-config/nest.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
