@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nest build",
     "prebuild": "pnpm --filter @juscash/shared build",
+    "predev": "pnpm --filter @juscash/shared build",
     "dev": "nest start --watch",
     "prestart": "pnpm --filter @juscash/shared build",
     "start": "node dist/main.js",
