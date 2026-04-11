@@ -10,6 +10,11 @@ export const envSchema = z.object({
   DATABASE_URL: z
     .string()
     .default('postgresql://postgres:postgres@localhost:5432/juscash'),
+  JWT_SECRET: z.string().min(32),
+  ACCESS_TOKEN_TTL: z.string().default('15m'),
+  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
+  COOKIE_DOMAIN: z.string().default(''),
+  COOKIE_SECURE: z.enum(['true', 'false']).default('false'),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;
