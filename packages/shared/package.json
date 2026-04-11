@@ -2,10 +2,23 @@
   "name": "@juscash/shared",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./constants/locales": "./src/constants/locales.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./constants/locales": {
+      "types": "./dist/constants/locales.d.ts",
+      "default": "./dist/constants/locales.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@juscash/typescript-config": "workspace:*"
   }
 }
