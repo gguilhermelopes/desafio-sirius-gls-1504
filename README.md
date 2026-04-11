@@ -6,9 +6,16 @@ Initial foundation scaffold with backend health endpoint, frontend login shell, 
 
 ## Local setup
 
+Preferred path:
+
 1. Copy `.env.example` to `.env`
-2. Run `pnpm install`
-3. Run `pnpm dev`
+2. Run `docker compose up --build`
+
+Optional app-only workflow:
+
+1. Run `pnpm install`
+2. Provide environment variables for the backend and frontend processes
+3. Start the workspace with `pnpm dev`
 
 ## Docker
 
