@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import request from 'supertest';
+import request, { Response } from 'supertest';
 import { AppModule } from '../src/app.module';
 
 describe('HealthController (e2e)', () => {
@@ -26,14 +26,25 @@ describe('HealthController (e2e)', () => {
   });
 
   it('returns health metadata', async () => {
-    const response = await request(app.getHttpServer()).get('/api/v1/health');
+    const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
 
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({
-      status: 'ok',
-      environment: 'test',
-      version: '0.0.0-test',
-      timestamp: expect.any(String),
-    });
+    await request(httpServer)
+      .get('/api/v1/health')
+      .expect(200)
+      .expect((response: Response) => {
+        const body = response.body as {
+          environment: string;
+          status: string;
+          timestamp: string;
+          version: string;
+        };
+
+        expect(body).toMatchObject({
+          status: 'ok',
+          environment: 'test',
+          version: '0.0.0-test',
+        });
+        expect(typeof body.timestamp).toBe('string');
+      });
   });
 });
