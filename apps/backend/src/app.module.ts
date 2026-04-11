@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import appConfig from './config/app.config';
 import { envSchema } from './config/env.schema';
@@ -13,13 +13,16 @@ import { HealthModule } from './modules/health/health.module';
       load: [appConfig],
       validate: (env) => envSchema.parse(env),
     }),
-    LoggerModule.forRoot({
-      pinoHttp: {
-        transport:
-          process.env.NODE_ENV === 'development'
-            ? { target: 'pino-pretty', options: { singleLine: true } }
-            : undefined,
-      },
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        pinoHttp: {
+          transport:
+            configService.getOrThrow<string>('app.NODE_ENV') === 'development'
+              ? { target: 'pino-pretty', options: { singleLine: true } }
+              : undefined,
+        },
+      }),
     }),
     PrismaModule,
     HealthModule,
