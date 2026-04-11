@@ -9,8 +9,7 @@ COPY packages ./packages
 COPY apps/frontend ./apps/frontend
 
 RUN pnpm install --filter @juscash/frontend... --frozen-lockfile
-RUN pnpm --filter @juscash/frontend build
 
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "@juscash/frontend", "start"]
+CMD ["pnpm", "--filter", "@juscash/frontend", "dev", "--hostname", "0.0.0.0"]
