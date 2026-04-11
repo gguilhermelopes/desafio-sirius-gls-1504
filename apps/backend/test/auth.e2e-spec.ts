@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { randomUUID } from 'node:crypto';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { PrismaService } from '../src/infrastructure/database/prisma.service';
@@ -47,13 +48,14 @@ describe('Auth bootstrap (e2e)', () => {
   });
 
   it('persists a refresh session when registering', async () => {
+    const uniqueEmail = `teste-${randomUUID()}@juscash.com`;
     const beforeCount = await prisma.refreshSession.count();
 
     const response = await request(app.getHttpServer())
       .post('/api/v1/auth/register')
       .send({
         name: 'Usuário Teste',
-        email: 'teste@juscash.com',
+        email: uniqueEmail,
         password: '12345678',
         passwordConfirmation: '12345678',
       });
