@@ -1,5 +1,7 @@
 import { INestApplication } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import cookieParser from 'cookie-parser';
 import request from 'supertest';
 
 process.env.NODE_ENV = 'test';
@@ -25,6 +27,13 @@ describe('Auth bootstrap (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api/v1');
+    app.use(cookieParser());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
     await app.init();
   });
 
@@ -37,8 +46,12 @@ describe('Auth bootstrap (e2e)', () => {
   it('registers the auth routes', async () => {
     await request(app.getHttpServer())
       .get('/api/v1/auth/me')
+      .expect(401)
       .expect((response) => {
-        expect(response.status).not.toBe(404);
+        expect(response.body).toMatchObject({
+          message: 'Unauthorized',
+          statusCode: 401,
+        });
       });
   });
 });

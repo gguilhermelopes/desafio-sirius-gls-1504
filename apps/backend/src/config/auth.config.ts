@@ -1,9 +1,14 @@
 import { registerAs } from '@nestjs/config';
+import { envSchema } from './env.schema';
 
-export default registerAs('auth', () => ({
-  jwtSecret: process.env.JWT_SECRET!,
-  accessTokenTtl: process.env.ACCESS_TOKEN_TTL ?? '15m',
-  refreshTokenTtlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? '7'),
-  cookieDomain: process.env.COOKIE_DOMAIN ?? '',
-  cookieSecure: process.env.COOKIE_SECURE === 'true',
-}));
+export default registerAs('auth', () => {
+  const env = envSchema.parse(process.env);
+
+  return {
+    jwtSecret: env.JWT_SECRET,
+    accessTokenTtl: env.ACCESS_TOKEN_TTL,
+    refreshTokenTtlDays: env.REFRESH_TOKEN_TTL_DAYS,
+    cookieDomain: env.COOKIE_DOMAIN,
+    cookieSecure: env.COOKIE_SECURE === 'true',
+  };
+});
