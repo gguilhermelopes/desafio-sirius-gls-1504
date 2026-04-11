@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
+import { PrismaService } from '../src/infrastructure/database/prisma.service';
 
 process.env.NODE_ENV = 'test';
 process.env.PORT = '3001';
@@ -19,6 +20,7 @@ const { AppModule } = require('../src/app.module') as typeof import('../src/app.
 
 describe('Auth bootstrap (e2e)', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -26,6 +28,7 @@ describe('Auth bootstrap (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    prisma = moduleFixture.get(PrismaService);
     app.setGlobalPrefix('api/v1');
     app.use(cookieParser());
     app.useGlobalPipes(
@@ -43,15 +46,21 @@ describe('Auth bootstrap (e2e)', () => {
     }
   });
 
-  it('registers the auth routes', async () => {
+  it('persists a refresh session when registering', async () => {
+    const beforeCount = await prisma.refreshSession.count();
+
     await request(app.getHttpServer())
-      .get('/api/v1/auth/me')
-      .expect(401)
-      .expect((response) => {
-        expect(response.body).toMatchObject({
-          message: 'Unauthorized',
-          statusCode: 401,
-        });
-      });
+      .post('/api/v1/auth/register')
+      .send({
+        name: 'Usuário Teste',
+        email: 'teste@juscash.com',
+        password: '12345678',
+        passwordConfirmation: '12345678',
+      })
+      .expect(404);
+
+    const afterCount = await prisma.refreshSession.count();
+
+    expect(afterCount).toBe(beforeCount + 1);
   });
 });
