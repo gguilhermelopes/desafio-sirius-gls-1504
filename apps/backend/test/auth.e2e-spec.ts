@@ -49,15 +49,16 @@ describe('Auth bootstrap (e2e)', () => {
   it('persists a refresh session when registering', async () => {
     const beforeCount = await prisma.refreshSession.count();
 
-    await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .post('/api/v1/auth/register')
       .send({
         name: 'Usuário Teste',
         email: 'teste@juscash.com',
         password: '12345678',
         passwordConfirmation: '12345678',
-      })
-      .expect(404);
+      });
+
+    expect(response.status).toBe(201);
 
     const afterCount = await prisma.refreshSession.count();
 
