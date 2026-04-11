@@ -9,6 +9,7 @@ COPY packages ./packages
 COPY apps/backend ./apps/backend
 
 RUN pnpm install --filter @juscash/backend... --frozen-lockfile
+RUN pnpm --filter @juscash/backend prisma:generate
 RUN pnpm --filter @juscash/backend build
 
 EXPOSE 3001
