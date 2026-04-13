@@ -1,8 +1,11 @@
 import { z } from "zod";
 
+const loginEmailMessage = "Digite um e-mail válido.";
+const loginPasswordMinMessage = "A senha deve ter pelo menos 8 caracteres.";
+
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
-  password: z.string().min(8),
+  email: z.string().trim().toLowerCase().email(loginEmailMessage),
+  password: z.string().min(8, loginPasswordMinMessage),
 });
 
 export const registerSchema = z

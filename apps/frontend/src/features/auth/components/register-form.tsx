@@ -1,9 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { registerAction } from "../actions/register";
+import { AuthFooterLink } from "./auth-footer-link";
+import { AuthInlineError } from "./auth-inline-error";
+import { AuthSubmitButton } from "./auth-submit-button";
+import { AuthTextField } from "./auth-text-field";
 import { RegisterInput } from "../schemas/auth";
 
 type RegisterFormProps = {
@@ -58,97 +61,87 @@ export function RegisterForm({ messages }: RegisterFormProps) {
   return (
     <form className="auth-form" noValidate onSubmit={handleSubmit}>
       {error ? (
-        <div className="auth-inline-error" role="alert">
+        <AuthInlineError className="auth-inline-error">
           {error === "Este e-mail já está em uso."
             ? messages.auth.duplicateEmail
             : error}
-        </div>
+        </AuthInlineError>
       ) : null}
 
-      <label className="auth-field">
-        <span>{messages.auth.nameLabel}</span>
-        <input
-          aria-invalid={Boolean(fieldErrors.name)}
-          autoComplete="name"
-          name="name"
-          onChange={(event) =>
-            setValues((current) => ({ ...current, name: event.target.value }))
-          }
-          type="text"
-          value={values.name}
-        />
-        {fieldErrors.name ? (
-          <small className="auth-field-error">{fieldErrors.name}</small>
-        ) : null}
-      </label>
+      <AuthTextField
+        autoComplete="name"
+        error={fieldErrors.name}
+        errorClassName="auth-field-error"
+        fieldClassName="auth-field"
+        label={messages.auth.nameLabel}
+        name="name"
+        onChange={(event) =>
+          setValues((current) => ({ ...current, name: event.target.value }))
+        }
+        type="text"
+        value={values.name}
+      />
 
-      <label className="auth-field">
-        <span>{messages.auth.emailLabel}</span>
-        <input
-          aria-invalid={Boolean(fieldErrors.email)}
-          autoComplete="email"
-          name="email"
-          onChange={(event) =>
-            setValues((current) => ({ ...current, email: event.target.value }))
-          }
-          type="email"
-          value={values.email}
-        />
-        {fieldErrors.email ? (
-          <small className="auth-field-error">{fieldErrors.email}</small>
-        ) : null}
-      </label>
+      <AuthTextField
+        autoComplete="email"
+        error={fieldErrors.email}
+        errorClassName="auth-field-error"
+        fieldClassName="auth-field"
+        label={messages.auth.emailLabel}
+        name="email"
+        onChange={(event) =>
+          setValues((current) => ({ ...current, email: event.target.value }))
+        }
+        type="email"
+        value={values.email}
+      />
 
-      <label className="auth-field">
-        <span>{messages.auth.passwordLabel}</span>
-        <input
-          aria-invalid={Boolean(fieldErrors.password)}
-          autoComplete="new-password"
-          name="password"
-          onChange={(event) =>
-            setValues((current) => ({
-              ...current,
-              password: event.target.value,
-            }))
-          }
-          type="password"
-          value={values.password}
-        />
-        <small className="auth-field-hint">{messages.auth.passwordHint}</small>
-        {fieldErrors.password ? (
-          <small className="auth-field-error">{fieldErrors.password}</small>
-        ) : null}
-      </label>
+      <AuthTextField
+        autoComplete="new-password"
+        error={fieldErrors.password}
+        errorClassName="auth-field-error"
+        fieldClassName="auth-field"
+        helper={messages.auth.passwordHint}
+        helperClassName="auth-field-hint"
+        showHelperWithError
+        label={messages.auth.passwordLabel}
+        name="password"
+        onChange={(event) =>
+          setValues((current) => ({
+            ...current,
+            password: event.target.value,
+          }))
+        }
+        type="password"
+        value={values.password}
+      />
 
-      <label className="auth-field">
-        <span>{messages.auth.passwordConfirmationLabel}</span>
-        <input
-          aria-invalid={Boolean(fieldErrors.passwordConfirmation)}
-          autoComplete="new-password"
-          name="passwordConfirmation"
-          onChange={(event) =>
-            setValues((current) => ({
-              ...current,
-              passwordConfirmation: event.target.value,
-            }))
-          }
-          type="password"
-          value={values.passwordConfirmation}
-        />
-        {fieldErrors.passwordConfirmation ? (
-          <small className="auth-field-error">
-            {fieldErrors.passwordConfirmation}
-          </small>
-        ) : null}
-      </label>
+      <AuthTextField
+        autoComplete="new-password"
+        error={fieldErrors.passwordConfirmation}
+        errorClassName="auth-field-error"
+        fieldClassName="auth-field"
+        label={messages.auth.passwordConfirmationLabel}
+        name="passwordConfirmation"
+        onChange={(event) =>
+          setValues((current) => ({
+            ...current,
+            passwordConfirmation: event.target.value,
+          }))
+        }
+        type="password"
+        value={values.passwordConfirmation}
+      />
 
-      <button className="auth-submit" disabled={isPending} type="submit">
+      <AuthSubmitButton className="auth-submit" disabled={isPending}>
         {isPending ? "Criando..." : messages.auth.registerButton}
-      </button>
+      </AuthSubmitButton>
 
-      <p className="auth-footer-link">
-        <Link href="/login">{messages.auth.loginLink}</Link>
-      </p>
+      <AuthFooterLink
+        className="auth-footer-link"
+        href="/login"
+        linkLabel={messages.auth.loginLink}
+      />
     </form>
   );
 }
