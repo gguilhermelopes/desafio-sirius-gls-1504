@@ -13,9 +13,11 @@ export class AuthRepository {
     });
   }
 
-  createUser(data: { name: string; email: string; passwordHash: string }) {
-    return this.prisma.user.create({
-      data,
+  findUserById(id: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id,
+      },
     });
   }
 
@@ -28,19 +30,19 @@ export class AuthRepository {
       ip?: string;
     };
   }) {
-    return this.prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
+    return this.prisma.$transaction(async (transaction) => {
+      const user = await transaction.user.create({
         data: data.user,
       });
 
-      await tx.refreshSession.create({
+      const refreshSession = await transaction.refreshSession.create({
         data: {
           ...data.refreshSession,
           userId: user.id,
         },
       });
 
-      return user;
+      return { refreshSession, user };
     });
   }
 
@@ -53,6 +55,70 @@ export class AuthRepository {
   }) {
     return this.prisma.refreshSession.create({
       data,
+    });
+  }
+
+  findActiveSessionById(id: string) {
+    return this.prisma.refreshSession.findFirst({
+      where: {
+        id,
+        revokedAt: null,
+      },
+    });
+  }
+
+  findActiveSessionsByUserId(userId: string) {
+    return this.prisma.refreshSession.findMany({
+      where: {
+        userId,
+        revokedAt: null,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  revokeSession(id: string) {
+    return this.prisma.refreshSession.updateMany({
+      where: {
+        id,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+  }
+
+  rotateRefreshSession(data: {
+    currentSessionId: string;
+    newSession: {
+      userId: string;
+      tokenHash: string;
+      expiresAt: Date;
+      userAgent?: string;
+      ip?: string;
+    };
+  }) {
+    return this.prisma.$transaction(async (transaction) => {
+      const revokedSession = await transaction.refreshSession.updateMany({
+        where: {
+          id: data.currentSessionId,
+          revokedAt: null,
+        },
+        data: {
+          revokedAt: new Date(),
+        },
+      });
+
+      if (revokedSession.count === 0) {
+        return null;
+      }
+
+      return transaction.refreshSession.create({
+        data: data.newSession,
+      });
     });
   }
 }

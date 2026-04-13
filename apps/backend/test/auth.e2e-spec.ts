@@ -143,18 +143,17 @@ describe('Auth bootstrap (e2e)', () => {
 
   it('rate limits repeated invalid login attempts', async () => {
     const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
+    const email = `throttle-${randomUUID()}@juscash.com`;
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
-      await request(httpServer)
-        .post('/api/v1/auth/login')
-        .send({
-          email: `missing-${attempt}@juscash.com`,
-          password: '12345678',
-        });
+      await request(httpServer).post('/api/v1/auth/login').send({
+        email,
+        password: '12345678',
+      });
     }
 
     const response = await request(httpServer).post('/api/v1/auth/login').send({
-      email: 'missing-final@juscash.com',
+      email,
       password: '12345678',
     });
 
@@ -199,6 +198,182 @@ describe('Auth bootstrap (e2e)', () => {
     expect(refreshCookie).toEqual(expect.stringContaining('Max-Age=604800'));
     expect(refreshCookie).toEqual(expect.stringContaining('Expires='));
   });
+
+  it('returns the authenticated user on /auth/me', async () => {
+    const uniqueEmail = `me-${randomUUID()}@juscash.com`;
+    const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
+
+    const registerResponse = await request(httpServer)
+      .post('/api/v1/auth/register')
+      .send({
+        name: 'Usuário Me',
+        email: uniqueEmail,
+        password: '12345678',
+        passwordConfirmation: '12345678',
+      });
+
+    expect(registerResponse.status).toBe(201);
+
+    const response = await request(httpServer)
+      .get('/api/v1/auth/me')
+      .set(
+        'Cookie',
+        toCookieHeader(
+          getSetCookieHeaders(registerResponse.headers['set-cookie']),
+        ),
+      );
+
+    const body = response.body as { email: string; id: string; name: string };
+
+    expect(response.status).toBe(200);
+    expect(body.email).toBe(uniqueEmail);
+    expect(body.id).toEqual(expect.any(String));
+    expect(body.name).toBe('Usuário Me');
+  });
+
+  it('refreshes the session using refresh_token cookie', async () => {
+    const uniqueEmail = `refresh-${randomUUID()}@juscash.com`;
+    const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
+
+    const registerResponse = await request(httpServer)
+      .post('/api/v1/auth/register')
+      .send({
+        name: 'Usuário Refresh',
+        email: uniqueEmail,
+        password: '12345678',
+        passwordConfirmation: '12345678',
+      });
+
+    expect(registerResponse.status).toBe(201);
+
+    const response = await request(httpServer)
+      .post('/api/v1/auth/refresh')
+      .set(
+        'Cookie',
+        toCookieHeader(
+          getSetCookieHeaders(registerResponse.headers['set-cookie']),
+        ),
+      );
+
+    const body = response.body as { email: string; id: string; name: string };
+
+    expect(response.status).toBe(201);
+    expect(body.email).toBe(uniqueEmail);
+    expect(body.id).toEqual(expect.any(String));
+    expect(body.name).toBe('Usuário Refresh');
+    expect(response.headers['set-cookie']).toEqual(
+      expect.arrayContaining([expect.stringContaining('access_token=')]),
+    );
+    expect(response.headers['set-cookie']).toEqual(
+      expect.arrayContaining([expect.stringContaining('refresh_token=')]),
+    );
+  });
+
+  it('rejects a revoked refresh token after rotation', async () => {
+    const uniqueEmail = `rotate-${randomUUID()}@juscash.com`;
+    const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
+
+    const registerResponse = await request(httpServer)
+      .post('/api/v1/auth/register')
+      .send({
+        name: 'Usuário Rotate',
+        email: uniqueEmail,
+        password: '12345678',
+        passwordConfirmation: '12345678',
+      });
+
+    expect(registerResponse.status).toBe(201);
+
+    const firstRefresh = await request(httpServer)
+      .post('/api/v1/auth/refresh')
+      .set(
+        'Cookie',
+        toCookieHeader(
+          getSetCookieHeaders(registerResponse.headers['set-cookie']),
+        ),
+      );
+
+    expect(firstRefresh.status).toBe(201);
+
+    const secondRefresh = await request(httpServer)
+      .post('/api/v1/auth/refresh')
+      .set(
+        'Cookie',
+        toCookieHeader(
+          getSetCookieHeaders(registerResponse.headers['set-cookie']),
+        ),
+      );
+
+    expect(secondRefresh.status).toBe(401);
+  });
+
+  it('allows only one concurrent refresh rotation per token', async () => {
+    const uniqueEmail = `parallel-${randomUUID()}@juscash.com`;
+    const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
+
+    const registerResponse = await request(httpServer)
+      .post('/api/v1/auth/register')
+      .send({
+        name: 'Usuário Parallel',
+        email: uniqueEmail,
+        password: '12345678',
+        passwordConfirmation: '12345678',
+      });
+
+    expect(registerResponse.status).toBe(201);
+
+    const cookieHeader = toCookieHeader(
+      getSetCookieHeaders(registerResponse.headers['set-cookie']),
+    );
+
+    const [firstRefresh, secondRefresh] = await Promise.all([
+      request(httpServer)
+        .post('/api/v1/auth/refresh')
+        .set('Cookie', cookieHeader),
+      request(httpServer)
+        .post('/api/v1/auth/refresh')
+        .set('Cookie', cookieHeader),
+    ]);
+
+    expect(
+      [firstRefresh.status, secondRefresh.status].sort(
+        (left, right) => left - right,
+      ),
+    ).toEqual([201, 401]);
+  });
+
+  it('logs out and clears cookies', async () => {
+    const uniqueEmail = `logout-${randomUUID()}@juscash.com`;
+    const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
+
+    const registerResponse = await request(httpServer)
+      .post('/api/v1/auth/register')
+      .send({
+        name: 'Usuário Logout',
+        email: uniqueEmail,
+        password: '12345678',
+        passwordConfirmation: '12345678',
+      });
+
+    expect(registerResponse.status).toBe(201);
+
+    const response = await request(httpServer)
+      .post('/api/v1/auth/logout')
+      .set(
+        'Cookie',
+        toCookieHeader(
+          getSetCookieHeaders(registerResponse.headers['set-cookie']),
+        ),
+      );
+
+    expect(response.status).toBe(201);
+    expect(response.headers['set-cookie']).toEqual(
+      expect.arrayContaining([expect.stringContaining('access_token=;')]),
+    );
+    expect(response.headers['set-cookie']).toEqual(
+      expect.arrayContaining([expect.stringContaining('refresh_token=;')]),
+    );
+  });
 });
 
 function getSetCookieHeaders(
@@ -209,4 +384,8 @@ function getSetCookieHeaders(
   }
 
   return Array.isArray(setCookie) ? setCookie : [setCookie];
+}
+
+function toCookieHeader(setCookieHeaders: string[]): string {
+  return setCookieHeaders.map((cookie) => cookie.split(';', 1)[0]).join('; ');
 }

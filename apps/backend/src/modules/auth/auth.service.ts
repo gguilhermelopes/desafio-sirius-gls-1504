@@ -32,6 +32,10 @@ type SessionResult = {
   refreshToken: string;
 };
 
+type SessionAwareUser = AuthUserResponseDto & {
+  sessionId: string;
+};
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -45,32 +49,37 @@ export class AuthService {
       throw new ConflictException('Password confirmation mismatch');
     }
 
-    const refreshToken = randomUUID();
+    const refreshTokenParts = await createRefreshTokenParts();
     const refreshTokenTtlDays = this.configService.getOrThrow<number>(
       'auth.refreshTokenTtlDays',
     );
     const expiresAt = new Date(Date.now() + refreshTokenTtlDays * MS_PER_DAY);
 
     try {
-      const user = await this.authRepository.createUserWithRefreshSession({
-        user: {
-          email: dto.email,
-          name: dto.name,
-          passwordHash: await hashSecret(dto.password),
-        },
-        refreshSession: {
-          expiresAt,
-          tokenHash: await hashSecret(refreshToken),
-        },
-      });
+      const { refreshSession, user } =
+        await this.authRepository.createUserWithRefreshSession({
+          user: {
+            email: dto.email,
+            name: dto.name,
+            passwordHash: await hashSecret(dto.password),
+          },
+          refreshSession: {
+            expiresAt,
+            tokenHash: refreshTokenParts.hash,
+          },
+        });
 
       return {
         accessToken: await this.signAccessToken({
           email: user.email,
           id: user.id,
           name: user.name,
+          sessionId: refreshSession.id,
         }),
-        refreshToken,
+        refreshToken: buildRefreshToken(
+          refreshSession.id,
+          refreshTokenParts.secret,
+        ),
         user: {
           email: user.email,
           id: user.id,
@@ -103,36 +112,169 @@ export class AuthService {
     });
   }
 
+  async me(user: {
+    id: string;
+    sessionId: string;
+  }): Promise<AuthUserResponseDto> {
+    const session = await this.authRepository.findActiveSessionById(
+      user.sessionId,
+    );
+
+    if (
+      !session ||
+      session.userId !== user.id ||
+      session.expiresAt <= new Date()
+    ) {
+      throw new UnauthorizedException('Invalid session');
+    }
+
+    const currentUser = await this.authRepository.findUserById(user.id);
+
+    if (!currentUser) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return {
+      email: currentUser.email,
+      id: currentUser.id,
+      name: currentUser.name,
+    };
+  }
+
+  async refresh(refreshCookie?: string): Promise<SessionResult> {
+    const parsedToken = parseRefreshToken(refreshCookie);
+
+    if (!parsedToken) {
+      throw new UnauthorizedException('Invalid session');
+    }
+
+    const session = await this.authRepository.findActiveSessionById(
+      parsedToken.sessionId,
+    );
+
+    if (
+      !session ||
+      session.expiresAt <= new Date() ||
+      !(await verifySecret(parsedToken.secret, session.tokenHash))
+    ) {
+      throw new UnauthorizedException('Invalid session');
+    }
+
+    const user = await this.authRepository.findUserById(session.userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const refreshTokenParts = await createRefreshTokenParts();
+    const refreshTokenTtlDays = this.configService.getOrThrow<number>(
+      'auth.refreshTokenTtlDays',
+    );
+    const expiresAt = new Date(Date.now() + refreshTokenTtlDays * MS_PER_DAY);
+    const newSession = await this.authRepository.rotateRefreshSession({
+      currentSessionId: session.id,
+      newSession: {
+        expiresAt,
+        tokenHash: refreshTokenParts.hash,
+        userId: user.id,
+      },
+    });
+
+    if (!newSession) {
+      throw new UnauthorizedException('Invalid session');
+    }
+
+    return {
+      accessToken: await this.signAccessToken({
+        email: user.email,
+        id: user.id,
+        name: user.name,
+        sessionId: newSession.id,
+      }),
+      refreshToken: buildRefreshToken(newSession.id, refreshTokenParts.secret),
+      user: {
+        email: user.email,
+        id: user.id,
+        name: user.name,
+      },
+    };
+  }
+
+  async logout(refreshCookie?: string): Promise<void> {
+    const parsedToken = parseRefreshToken(refreshCookie);
+
+    if (!parsedToken) {
+      return;
+    }
+
+    const session = await this.authRepository.findActiveSessionById(
+      parsedToken.sessionId,
+    );
+
+    if (!session) {
+      return;
+    }
+
+    if (!(await verifySecret(parsedToken.secret, session.tokenHash))) {
+      return;
+    }
+
+    await this.authRepository.revokeSession(session.id);
+  }
+
   private async createSession(
     user: AuthUserResponseDto,
   ): Promise<SessionResult> {
-    const refreshToken = randomUUID();
+    const refreshTokenParts = await createRefreshTokenParts();
     const refreshTokenTtlDays = this.configService.getOrThrow<number>(
       'auth.refreshTokenTtlDays',
     );
     const expiresAt = new Date(Date.now() + refreshTokenTtlDays * MS_PER_DAY);
 
-    await this.authRepository.createRefreshSession({
+    const session = await this.authRepository.createRefreshSession({
       expiresAt,
-      tokenHash: await hashSecret(refreshToken),
+      tokenHash: refreshTokenParts.hash,
       userId: user.id,
     });
 
     return {
-      accessToken: await this.signAccessToken(user),
-      refreshToken,
+      accessToken: await this.signAccessToken({
+        ...user,
+        sessionId: session.id,
+      }),
+      refreshToken: buildRefreshToken(session.id, refreshTokenParts.secret),
       user,
     };
   }
 
-  private signAccessToken(user: AuthUserResponseDto) {
+  private signAccessToken(user: SessionAwareUser) {
     return this.jwtService.signAsync(
-      { email: user.email, sub: user.id },
+      {
+        email: user.email,
+        sid: user.sessionId,
+        sub: user.id,
+      },
       {
         expiresIn: this.configService.getOrThrow<string>('auth.accessTokenTtl'),
       },
     );
   }
+}
+
+async function createRefreshTokenParts(): Promise<{
+  hash: string;
+  secret: string;
+}> {
+  const secret = randomUUID();
+
+  return {
+    hash: await hashSecret(secret),
+    secret,
+  };
+}
+
+function buildRefreshToken(sessionId: string, secret: string) {
+  return `${sessionId}.${secret}`;
 }
 
 async function hashSecret(secret: string): Promise<string> {
@@ -168,4 +310,20 @@ async function verifySecret(
   }
 
   return timingSafeEqual(expectedBuffer, derivedKey);
+}
+
+function parseRefreshToken(
+  refreshToken?: string,
+): { secret: string; sessionId: string } | null {
+  if (!refreshToken) {
+    return null;
+  }
+
+  const [sessionId, secret, ...rest] = refreshToken.split('.');
+
+  if (!sessionId || !secret || rest.length > 0) {
+    return null;
+  }
+
+  return { secret, sessionId };
 }

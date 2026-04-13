@@ -6,7 +6,7 @@ import {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-type AuthCookieOptions = {
+export type AuthCookieOptions = {
   accessTokenTtl: string;
   domain?: string;
   refreshTokenTtlDays: number;
@@ -39,6 +39,24 @@ export function setAuthCookies(
     expires: new Date(Date.now() + refreshTokenMaxAgeMs),
     maxAge: refreshTokenMaxAgeMs,
   });
+}
+
+export function clearAuthCookies(
+  response: Response,
+  options: Pick<AuthCookieOptions, 'domain' | 'secure'>,
+) {
+  const baseCookieOptions = {
+    domain: options.domain || undefined,
+    expires: new Date(0),
+    httpOnly: true,
+    maxAge: 0,
+    path: '/',
+    sameSite: 'lax' as const,
+    secure: options.secure,
+  };
+
+  response.cookie(ACCESS_TOKEN_COOKIE_NAME, '', baseCookieOptions);
+  response.cookie(REFRESH_TOKEN_COOKIE_NAME, '', baseCookieOptions);
 }
 
 function parseDurationToMs(duration: string): number {
