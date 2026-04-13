@@ -12,4 +12,4 @@ RUN pnpm install --filter @juscash/frontend... --frozen-lockfile
 
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "@juscash/frontend", "dev", "--hostname", "0.0.0.0"]
+CMD ["pnpm", "--filter", "@juscash/frontend", "dev", "--hostname", "0.0.0.0", "--turbo"]
