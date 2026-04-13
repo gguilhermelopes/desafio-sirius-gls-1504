@@ -12,13 +12,13 @@ process.env.REFRESH_TOKEN_TTL_DAYS = '7';
 process.env.COOKIE_DOMAIN = '';
 process.env.COOKIE_SECURE = 'false';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
-
 describe('HealthController (e2e)', () => {
   let app: INestApplication;
+  let AppModule: typeof import('../src/app.module').AppModule;
 
   beforeAll(async () => {
+    ({ AppModule } = await import('../src/app.module'));
+
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
