@@ -4,6 +4,8 @@
 
 Initial foundation scaffold with backend health endpoint, frontend login shell, i18n baseline, and monorepo tooling.
 
+The authentication slice is now wired end to end with registration, login, protected frontend routes, and cookie-based sessions backed by the NestJS API.
+
 ## Local setup
 
 Preferred path:
@@ -31,3 +33,10 @@ Useful commands:
 - Start: `docker compose up --build`
 - Stop: `docker compose down`
 - Follow logs: `docker compose logs -f`
+
+## Authentication
+
+- Register creates the user and signs the session in automatically
+- Session state is stored in `httpOnly` cookies managed by the backend
+- `/communications` redirects unauthenticated users to `/login`
+- Frontend validation improves UX only; backend validation remains authoritative
