@@ -4,8 +4,8 @@ export const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),
-  PORT: z.coerce.number().default(3001),
-  FRONTEND_URL: z.string().default('http://localhost:3000'),
+  PORT: z.coerce.number().default(3101),
+  FRONTEND_URL: z.string().default('http://localhost:3100'),
   APP_VERSION: z.string().default('0.0.0'),
   DATABASE_URL: z
     .string()

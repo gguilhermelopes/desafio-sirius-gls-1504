@@ -15,6 +15,8 @@ process.env.ACCESS_TOKEN_TTL = '15m';
 process.env.REFRESH_TOKEN_TTL_DAYS = '7';
 process.env.COOKIE_DOMAIN = '';
 process.env.COOKIE_SECURE = 'false';
+process.env.POSTGRES_PORT ??= '55432';
+process.env.DATABASE_URL ??= `postgresql://postgres:postgres@localhost:${process.env.POSTGRES_PORT}/juscash?schema=auth_e2e`;
 
 describe('Auth bootstrap (e2e)', () => {
   let app: INestApplication;
