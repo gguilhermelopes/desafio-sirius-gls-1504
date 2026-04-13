@@ -2,11 +2,10 @@
 
 import React from "react";
 import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { loginAction } from "../actions/login";
-import { AuthFooterLink } from "./auth-footer-link";
-import { AuthInlineError } from "./auth-inline-error";
 import { AuthPasswordField } from "./auth-password-field";
 import { AuthSubmitButton } from "./auth-submit-button";
 import { AuthTextField } from "./auth-text-field";
@@ -135,12 +134,10 @@ export function LoginForm({ messages }: LoginFormProps) {
       </div>
 
       {rootError ? (
-        <AuthInlineError
-          className="login-inline-error"
-          iconClassName="login-inline-error-icon"
-        >
-          {rootError}
-        </AuthInlineError>
+        <div className="login-inline-error" role="alert">
+          <span className="login-inline-error-icon" aria-hidden="true" />
+          <span>{rootError}</span>
+        </div>
       ) : null}
 
       <AuthSubmitButton
@@ -154,13 +151,10 @@ export function LoginForm({ messages }: LoginFormProps) {
         {messages.auth.loginButton}
       </AuthSubmitButton>
 
-      <AuthFooterLink
-        className="login-footer-link"
-        href="/register"
-        linkLabel="Cadastre-se"
-        prefix="Não tem conta?"
-        prefixClassName="login-footer-prefix"
-      />
+      <p className="login-footer-link">
+        <span className="login-footer-prefix">Não tem conta? </span>
+        <Link href="/register">Cadastre-se</Link>
+      </p>
     </form>
   );
 }

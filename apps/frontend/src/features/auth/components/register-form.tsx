@@ -1,10 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { registerAction } from "../actions/register";
-import { AuthFooterLink } from "./auth-footer-link";
-import { AuthInlineError } from "./auth-inline-error";
 import { AuthSubmitButton } from "./auth-submit-button";
 import { AuthTextField } from "./auth-text-field";
 import { RegisterInput } from "../schemas/auth";
@@ -61,11 +60,11 @@ export function RegisterForm({ messages }: RegisterFormProps) {
   return (
     <form className="auth-form" noValidate onSubmit={handleSubmit}>
       {error ? (
-        <AuthInlineError className="auth-inline-error">
+        <div className="auth-inline-error" role="alert">
           {error === "Este e-mail já está em uso."
             ? messages.auth.duplicateEmail
             : error}
-        </AuthInlineError>
+        </div>
       ) : null}
 
       <AuthTextField
@@ -137,11 +136,9 @@ export function RegisterForm({ messages }: RegisterFormProps) {
         {isPending ? "Criando..." : messages.auth.registerButton}
       </AuthSubmitButton>
 
-      <AuthFooterLink
-        className="auth-footer-link"
-        href="/login"
-        linkLabel={messages.auth.loginLink}
-      />
+      <p className="auth-footer-link">
+        <Link href="/login">{messages.auth.loginLink}</Link>
+      </p>
     </form>
   );
 }

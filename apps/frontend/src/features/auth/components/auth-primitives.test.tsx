@@ -1,8 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { AuthFooterLink } from "./auth-footer-link";
-import { AuthInlineError } from "./auth-inline-error";
+import { AuthPasswordField } from "./auth-password-field";
 import { AuthSubmitButton } from "./auth-submit-button";
 import { AuthTextField } from "./auth-text-field";
 
@@ -21,23 +20,21 @@ describe("Auth primitives", () => {
           shellClassName="login-input-shell"
           type="email"
         />
-        <AuthInlineError className="login-inline-error">
-          Verifique seus dados e tente novamente.
-        </AuthInlineError>
-        <AuthSubmitButton className="login-submit">Entrar</AuthSubmitButton>
-        <AuthFooterLink
-          className="login-footer-link"
-          href="/register"
-          linkLabel="Cadastre-se"
-          prefix="Não tem conta?"
+        <AuthPasswordField
+          inputClassName="login-input"
+          label="Senha"
+          labelClassName="login-field-label"
+          placeholder="*******"
+          shellClassName="login-input-shell"
+          toggleButtonClassName="login-password-toggle"
+          toggleIconClassName="login-password-icon"
         />
+        <AuthSubmitButton className="login-submit">Entrar</AuthSubmitButton>
       </>,
     );
 
     expect(html).toContain("Digite um e-mail válido.");
-    expect(html).toContain("Verifique seus dados e tente novamente.");
+    expect(html).toContain("Mostrar senha");
     expect(html).toContain(">Entrar<");
-    expect(html).toContain("Não tem conta?");
-    expect(html).toContain(">Cadastre-se<");
   });
 });
