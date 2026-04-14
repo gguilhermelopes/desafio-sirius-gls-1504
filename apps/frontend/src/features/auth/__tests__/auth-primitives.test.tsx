@@ -1,9 +1,9 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { AuthPasswordField } from "./auth-password-field";
-import { AuthSubmitButton } from "./auth-submit-button";
-import { AuthTextField } from "./auth-text-field";
+import { AuthPasswordField } from "../components/auth-password-field";
+import { AuthSubmitButton } from "../components/auth-submit-button";
+import { AuthTextField } from "../components/auth-text-field";
 
 describe("Auth primitives", () => {
   it("renders shared auth components with the expected structure", () => {

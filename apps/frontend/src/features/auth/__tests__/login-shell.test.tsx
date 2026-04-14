@@ -1,7 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { LoginShell } from "./login-shell";
+import { LoginShell } from "../components/login-shell";
 
 describe("LoginShell", () => {
   it("renders the figma-based login structure", () => {

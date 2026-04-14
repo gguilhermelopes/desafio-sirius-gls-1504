@@ -16,7 +16,7 @@ export function AuthSubmitButton({
   loadingContent,
 }: AuthSubmitButtonProps) {
   return (
-    <button className={className} disabled={disabled} type="submit">
+    <button aria-busy={loading} className={className} disabled={disabled} type="submit">
       {loading ? loadingContent : children}
     </button>
   );

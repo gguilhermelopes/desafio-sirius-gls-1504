@@ -5,6 +5,7 @@ import { randomUUID } from 'node:crypto';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { PrismaService } from '../src/infrastructure/database/prisma.service';
+import { getSetCookieHeaders, toCookieHeader } from './helpers/cookies';
 
 process.env.NODE_ENV = 'test';
 process.env.PORT = '3001';
@@ -201,6 +202,51 @@ describe('Auth bootstrap (e2e)', () => {
     expect(refreshCookie).toEqual(expect.stringContaining('Expires='));
   });
 
+  it('returns 401 for an existing-shape login payload with a short wrong password', async () => {
+    const uniqueEmail = `short-login-${randomUUID()}@juscash.com`;
+    const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
+
+    const registerResponse = await request(httpServer)
+      .post('/api/v1/auth/register')
+      .send({
+        name: 'Usuário Short Login',
+        email: uniqueEmail,
+        password: '12345678',
+        passwordConfirmation: '12345678',
+      });
+
+    expect(registerResponse.status).toBe(201);
+
+    const response = await request(httpServer).post('/api/v1/auth/login').send({
+      email: uniqueEmail,
+      password: '123',
+    });
+
+    const body = response.body as { message: string };
+
+    expect(response.status).toBe(401);
+    expect(body.message).toBe('Invalid credentials');
+  });
+
+  it('still returns 400 for malformed login payload shape', async () => {
+    const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
+
+    const response = await request(httpServer).post('/api/v1/auth/login').send({
+      email: 'not-an-email',
+      password: 123,
+    });
+
+    const body = response.body as { message: string[] };
+
+    expect(response.status).toBe(400);
+    expect(body.message).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('email'),
+        expect.stringContaining('password'),
+      ]),
+    );
+  });
+
   it('returns the authenticated user on /auth/me', async () => {
     const uniqueEmail = `me-${randomUUID()}@juscash.com`;
     const httpServer = app.getHttpServer() as Parameters<typeof request>[0];
@@ -377,17 +423,3 @@ describe('Auth bootstrap (e2e)', () => {
     );
   });
 });
-
-function getSetCookieHeaders(
-  setCookie: string | string[] | undefined,
-): string[] {
-  if (!setCookie) {
-    return [];
-  }
-
-  return Array.isArray(setCookie) ? setCookie : [setCookie];
-}
-
-function toCookieHeader(setCookieHeaders: string[]): string {
-  return setCookieHeaders.map((cookie) => cookie.split(';', 1)[0]).join('; ');
-}

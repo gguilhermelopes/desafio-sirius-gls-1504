@@ -6,7 +6,11 @@ import authConfig from './config/auth.config';
 import { envSchema } from './config/env.schema';
 import { PrismaModule } from './infrastructure/database/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CommunicationsModule } from './modules/communications/communications.module';
 import { HealthModule } from './modules/health/health.module';
+import { SummaryModule } from './modules/summary/summary.module';
+import { SyncModule } from './modules/sync/sync.module';
+import { TribunalsModule } from './modules/tribunals/tribunals.module';
 
 @Module({
   imports: [
@@ -29,6 +33,10 @@ import { HealthModule } from './modules/health/health.module';
     PrismaModule,
     AuthModule,
     HealthModule,
+    TribunalsModule,
+    CommunicationsModule,
+    SummaryModule,
+    SyncModule,
   ],
 })
 export class AppModule {}

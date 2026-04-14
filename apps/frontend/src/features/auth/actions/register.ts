@@ -1,8 +1,7 @@
-import { ApiError, apiFetch } from "@/lib/api/fetcher";
+import { ApiError, apiFetch } from "../../../lib/api/fetcher";
 import { AuthUser, RegisterRequest } from "@juscash/shared";
 import {
   AuthActionResult,
-  RegisterInput,
   mapFieldErrors,
   registerSchema,
 } from "../schemas/auth";
@@ -10,7 +9,7 @@ import {
 type RegisterField = Extract<keyof RegisterRequest, string>;
 
 export async function registerAction(
-  input: RegisterInput,
+  input: RegisterRequest,
 ): Promise<AuthActionResult<RegisterField>> {
   const parsed = registerSchema.safeParse(input);
 

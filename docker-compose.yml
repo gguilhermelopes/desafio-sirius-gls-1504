@@ -30,6 +30,7 @@ services:
       REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN}
       COOKIE_SECURE: ${COOKIE_SECURE}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       CHOKIDAR_USEPOLLING: "true"
       TSC_WATCHFILE: UseFsEventsWithFallbackDynamicPolling
     depends_on:
@@ -38,9 +39,49 @@ services:
     command: >
       sh -c "pnpm --filter @juscash/shared build &&
       pnpm --filter @juscash/backend prisma:generate &&
+      pnpm --filter @juscash/backend exec prisma migrate deploy &&
       pnpm --filter @juscash/backend dev"
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      - ./apps/backend/src:/app/apps/backend/src
+      - ./apps/backend/prisma:/app/apps/backend/prisma
+      - ./apps/backend/test:/app/apps/backend/test
+      - ./apps/backend/tsconfig.json:/app/apps/backend/tsconfig.json
+      - ./apps/backend/tsconfig.build.json:/app/apps/backend/tsconfig.build.json
+      - ./apps/backend/nest-cli.json:/app/apps/backend/nest-cli.json
+      - ./packages/shared/src:/app/packages/shared/src
+      - ./packages/shared/tsconfig.json:/app/packages/shared/tsconfig.json
+      - ./packages/shared/tsconfig.build.json:/app/packages/shared/tsconfig.build.json
+
+  backend-seed:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${BACKEND_PORT}
+      FRONTEND_URL: ${FRONTEND_URL}
+      APP_VERSION: ${APP_VERSION}
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL}
+      REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
+      COOKIE_SECURE: ${COOKIE_SECURE}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CHOKIDAR_USEPOLLING: "true"
+      TSC_WATCHFILE: UseFsEventsWithFallbackDynamicPolling
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    command: >
+      sh -c "pnpm --filter @juscash/shared build &&
+      pnpm --filter @juscash/backend prisma:generate &&
+      pnpm --filter @juscash/backend seed"
+    restart: "no"
     volumes:
       - ./apps/backend/src:/app/apps/backend/src
       - ./apps/backend/prisma:/app/apps/backend/prisma
@@ -60,6 +101,7 @@ services:
       NODE_ENV: ${NODE_ENV}
       PORT: ${FRONTEND_PORT}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      INTERNAL_API_URL: ${INTERNAL_API_URL}
       NODE_OPTIONS: ${FRONTEND_NODE_OPTIONS:---max-old-space-size=384}
       NEXT_TELEMETRY_DISABLED: "1"
       RAYON_NUM_THREADS: "1"

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 
 type AuthTextFieldProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -39,6 +39,10 @@ export function AuthTextField({
   trailingAdornment,
   ...inputProps
 }: AuthTextFieldProps) {
+  const id = useId();
+  const helperId = `${id}-helper`;
+  const errorId = `${id}-error`;
+
   const helperText = helper ?? (reserveHelperSpace ? "\u00A0" : null);
   const helperClasses = [
     helperClassName,
@@ -54,8 +58,17 @@ export function AuthTextField({
   const shellClasses = [shellClassName, error ? shellInvalidClassName : null]
     .filter(Boolean)
     .join(" ");
+
+  const describedBy = [
+    error ? errorId : null,
+    helperText && (!error || showHelperWithError) ? helperId : null,
+  ]
+    .filter(Boolean)
+    .join(" ") || undefined;
+
   const inputElement = (
     <input
+      aria-describedby={describedBy}
       aria-invalid={Boolean(error)}
       className={inputClassName}
       {...inputProps}
@@ -74,9 +87,11 @@ export function AuthTextField({
         inputElement
       )}
       {helperText && (!error || showHelperWithError) ? (
-        <small className={helperClasses}>{helperText}</small>
+        <small className={helperClasses} id={helperId}>{helperText}</small>
       ) : null}
-      {error ? <small className={errorClasses}>{error}</small> : null}
+      {error ? (
+        <small className={errorClasses} id={errorId} role="alert">{error}</small>
+      ) : null}
     </label>
   );
 }

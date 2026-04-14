@@ -9,6 +9,7 @@ type AuthPasswordFieldProps = Omit<
   "className" | "type"
 > & {
   error?: string;
+  errorClassName?: string;
   fieldClassName?: string;
   helper?: string;
   helperClassName?: string;
@@ -20,6 +21,7 @@ type AuthPasswordFieldProps = Omit<
   reserveHelperSpace?: boolean;
   shellClassName?: string;
   shellInvalidClassName?: string;
+  showHelperWithError?: boolean;
   toggleButtonClassName?: string;
   toggleHideLabel?: string;
   toggleIconClassName?: string;
@@ -28,6 +30,7 @@ type AuthPasswordFieldProps = Omit<
 
 export function AuthPasswordField({
   error,
+  errorClassName,
   fieldClassName,
   helper,
   helperClassName,
@@ -39,6 +42,7 @@ export function AuthPasswordField({
   reserveHelperSpace = false,
   shellClassName,
   shellInvalidClassName,
+  showHelperWithError = false,
   toggleButtonClassName,
   toggleHideLabel = "Ocultar senha",
   toggleIconClassName,
@@ -51,6 +55,7 @@ export function AuthPasswordField({
     <AuthTextField
       {...inputProps}
       error={error}
+      errorClassName={errorClassName}
       fieldClassName={fieldClassName}
       helper={helper}
       helperClassName={helperClassName}
@@ -62,6 +67,7 @@ export function AuthPasswordField({
       reserveHelperSpace={reserveHelperSpace}
       shellClassName={shellClassName}
       shellInvalidClassName={shellInvalidClassName}
+      showHelperWithError={showHelperWithError}
       trailingAdornment={
         <button
           aria-label={showPassword ? toggleHideLabel : toggleShowLabel}

@@ -26,6 +26,6 @@ export async function hasSession() {
   return Boolean(session);
 }
 
-function buildCookieHeader(cookiesToSerialize: Array<{ name: string; value: string }>) {
+export function buildCookieHeader(cookiesToSerialize: Array<{ name: string; value: string }>) {
   return cookiesToSerialize.map(({ name, value }) => `${name}=${value}`).join("; ");
 }

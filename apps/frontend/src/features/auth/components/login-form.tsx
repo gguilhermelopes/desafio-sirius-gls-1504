@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { loginAction } from "../actions/login";
+import { splitAuthLinkCopy } from "./auth-link-copy";
 import { AuthPasswordField } from "./auth-password-field";
 import { AuthSubmitButton } from "./auth-submit-button";
 import { AuthTextField } from "./auth-text-field";
@@ -26,6 +27,7 @@ type LoginFormProps = {
 
 export function LoginForm({ messages }: LoginFormProps) {
   const router = useRouter();
+  const registerLinkCopy = splitAuthLinkCopy(messages.auth.registerLink);
   const {
     clearErrors,
     formState: { errors },
@@ -74,10 +76,7 @@ export function LoginForm({ messages }: LoginFormProps) {
       if (result.error) {
         setError("root.server", {
           type: "server",
-          message:
-            result.error === messages.auth.invalidCredentials
-              ? "E-mail ou senha incorretos. Verifique os dados e tente novamente."
-              : result.error,
+          message: result.error,
         });
       }
     },
@@ -97,6 +96,7 @@ export function LoginForm({ messages }: LoginFormProps) {
       <div className="login-fields">
         <AuthTextField
           autoComplete="email"
+          autoFocus
           error={emailError}
           fieldClassName="login-field"
           helperClassName="login-field-helper"
@@ -152,8 +152,10 @@ export function LoginForm({ messages }: LoginFormProps) {
       </AuthSubmitButton>
 
       <p className="login-footer-link">
-        <span className="login-footer-prefix">Não tem conta? </span>
-        <Link href="/register">Cadastre-se</Link>
+        {registerLinkCopy.prefix ? (
+          <span className="login-footer-prefix">{registerLinkCopy.prefix} </span>
+        ) : null}
+        <Link href="/register">{registerLinkCopy.cta}</Link>
       </p>
     </form>
   );

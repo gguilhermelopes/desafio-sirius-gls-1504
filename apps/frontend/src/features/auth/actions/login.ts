@@ -1,8 +1,7 @@
-import { ApiError, apiFetch } from "@/lib/api/fetcher";
+import { ApiError, apiFetch } from "../../../lib/api/fetcher";
 import { AuthUser, LoginRequest } from "@juscash/shared";
 import {
   AuthActionResult,
-  LoginInput,
   loginSchema,
   mapFieldErrors,
 } from "../schemas/auth";
@@ -10,7 +9,7 @@ import {
 type LoginField = Extract<keyof LoginRequest, string>;
 
 export async function loginAction(
-  input: LoginInput,
+  input: LoginRequest,
 ): Promise<AuthActionResult<LoginField>> {
   const parsed = loginSchema.safeParse(input);
 

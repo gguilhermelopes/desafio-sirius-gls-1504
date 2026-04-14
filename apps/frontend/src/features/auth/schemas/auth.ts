@@ -1,25 +1,32 @@
 import { z } from "zod";
+import type { LoginRequest, RegisterRequest } from "@juscash/shared";
 
 const loginEmailMessage = "Digite um e-mail válido.";
-const loginPasswordMinMessage = "A senha deve ter pelo menos 8 caracteres.";
+const loginPasswordRequiredMessage = "Digite sua senha.";
+const registerNameMessage = "Digite seu nome completo.";
+const registerEmailMessage = "Digite um e-mail válido.";
+const registerPasswordMinMessage = "A senha deve ter pelo menos 8 caracteres.";
+const registerPasswordMismatchMessage = "As senhas precisam ser iguais.";
 
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email(loginEmailMessage),
-  password: z.string().min(8, loginPasswordMinMessage),
+  password: z.string().refine((value) => value.trim().length > 0, {
+    message: loginPasswordRequiredMessage,
+  }),
 });
 
 export const registerSchema = z
   .object({
-    name: z.string().trim().min(1),
-    email: z.string().trim().toLowerCase().email(),
-    password: z.string().min(8),
-    passwordConfirmation: z.string().min(8),
+    name: z.string().trim().min(1, registerNameMessage),
+    email: z.string().trim().toLowerCase().email(registerEmailMessage),
+    password: z.string().min(8, registerPasswordMinMessage),
+    passwordConfirmation: z.string().min(8, registerPasswordMinMessage),
   })
   .superRefine((data, context) => {
     if (data.password !== data.passwordConfirmation) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "As senhas precisam ser iguais",
+        message: registerPasswordMismatchMessage,
         path: ["passwordConfirmation"],
       });
     }
@@ -27,8 +34,8 @@ export const registerSchema = z
 
 type FieldErrorMap<TField extends string> = Partial<Record<TField, string>>;
 
-export type LoginInput = z.infer<typeof loginSchema>;
-export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = LoginRequest;
+export type RegisterInput = RegisterRequest;
 export type AuthActionResult<TField extends string> = {
   error?: string;
   fieldErrors?: FieldErrorMap<TField>;
