@@ -14,7 +14,7 @@ export function ProcessHeader({
   };
 }) {
   return (
-    <div className="mb-6">
+    <div className="mb-4 rounded-md border border-neutral-300 bg-neutral-50 p-6">
       <div className="flex items-start justify-between gap-4 mb-3">
         <h1 className="font-sans font-bold text-[20px] leading-[1.2] text-neutral-800 m-0">
           {data.process.number}
@@ -29,18 +29,18 @@ export function ProcessHeader({
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2 flex-wrap font-sans font-normal text-[16px] leading-[1.2] text-neutral-800">
-        <span className="inline-flex items-center gap-1.5 [&>svg]:text-neutral-muted">
+      <div className="flex items-start gap-2 font-sans font-normal text-[16px] leading-[1.4] text-neutral-800">
+        <span className="inline-flex items-center gap-1.5 shrink-0 [&>svg]:text-neutral-muted">
           <Gavel size={16} />
           {data.process.tribunal.sigla}
         </span>
-        <span className="text-neutral-300">|</span>
-        <span className="inline-flex items-center gap-1.5 [&>svg]:text-neutral-muted">
+        <span className="h-[18px] w-px bg-neutral-300 shrink-0 mt-[2px]" />
+        <span className="inline-flex items-start gap-1.5 min-w-0 [&>svg]:text-neutral-muted [&>svg]:mt-[2px] [&>svg]:shrink-0">
           <Users size={16} />
-          {data.recipients.join(", ")}
+          <span className="break-words">{data.recipients.join(", ")}</span>
         </span>
-        <span className="text-neutral-300">|</span>
-        <span className="inline-flex items-center gap-1.5 [&>svg]:text-neutral-muted">
+        <span className="h-[18px] w-px bg-neutral-300 shrink-0 mt-[2px]" />
+        <span className="inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap [&>svg]:text-neutral-muted">
           <Clock size={16} />
           {data.process.communicationsCount} {messages.updates}
         </span>

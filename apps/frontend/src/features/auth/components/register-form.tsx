@@ -185,7 +185,7 @@ export function RegisterForm({ messages }: RegisterFormProps) {
         {loginLinkCopy.prefix ? (
           <span>{loginLinkCopy.prefix} </span>
         ) : null}
-        <Link className="font-normal text-blue-600 no-underline hover:underline" href="/login">
+        <Link className="text-[#105abc] no-underline hover:underline" href="/login">
           {loginLinkCopy.cta}
         </Link>
       </p>
