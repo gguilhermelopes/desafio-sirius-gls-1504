@@ -3,7 +3,6 @@
 import React from "react";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { registerAction } from "../actions/register";
 import { splitAuthLinkCopy } from "./auth-link-copy";
@@ -29,7 +28,6 @@ type RegisterFormProps = {
 };
 
 export function RegisterForm({ messages }: RegisterFormProps) {
-  const router = useRouter();
   const loginLinkCopy = splitAuthLinkCopy(messages.auth.loginLink);
   const {
     clearErrors,
@@ -50,8 +48,7 @@ export function RegisterForm({ messages }: RegisterFormProps) {
     mutationFn: registerAction,
     onSuccess: (result) => {
       if (result.success) {
-        router.push("/communications");
-        router.refresh();
+        window.location.href = "/communications";
         return;
       }
 

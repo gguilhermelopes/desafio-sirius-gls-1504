@@ -6,21 +6,21 @@ describe('SummaryService', () => {
     jest.restoreAllMocks();
   });
 
-  it('should throw when OPENAI_API_KEY is not configured', async () => {
+  it('should throw when GEMINI_API_KEY is not configured', async () => {
     const service = new SummaryService({
       get: jest.fn().mockReturnValue(undefined),
     } as unknown as ConfigService);
 
     await expect(service.generateSummary('conteudo')).rejects.toThrow(
-      'OPENAI_API_KEY is not configured',
+      'GEMINI_API_KEY is not configured',
     );
   });
 
-  it('should request a summary and return the first completion content', async () => {
+  it('should request a summary and return the first candidate text', async () => {
     const fetchMock = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue({
-        choices: [{ message: { content: 'Resumo gerado' } }],
+        candidates: [{ content: { parts: [{ text: 'Resumo gerado' }] } }],
       }),
     });
     global.fetch = fetchMock as typeof fetch;
@@ -32,11 +32,12 @@ describe('SummaryService', () => {
       'Resumo gerado',
     );
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://api.openai.com/v1/chat/completions',
+      expect.stringContaining(
+        'generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+      ),
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({
-          Authorization: 'Bearer test-key',
           'Content-Type': 'application/json',
         }),
       }),

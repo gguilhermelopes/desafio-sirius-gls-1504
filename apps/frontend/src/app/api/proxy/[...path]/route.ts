@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { buildCookieHeader } from "@/lib/auth/get-session";
+import { tryRefreshTokens } from "@/lib/auth/refresh-tokens";
 
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL;
 const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -18,26 +19,20 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
   const targetUrl = `${API_URL}${targetPath}${queryString ? `?${queryString}` : ""}`;
 
   const cookieStore = await cookies();
-  const cookieHeader = buildCookieHeader(cookieStore.getAll());
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  if (cookieHeader) {
-    headers["Cookie"] = cookieHeader;
-  }
 
   const body = request.method !== "GET" && request.method !== "HEAD"
     ? await request.text()
     : undefined;
 
-  const response = await fetch(targetUrl, {
-    method: request.method,
-    headers,
-    body,
-    cache: "no-store",
-  });
+  let response = await fetchWithCookies(targetUrl, request.method, body, cookieStore);
+
+  if (response.status === 401) {
+    const refreshed = await tryRefreshTokens(cookieStore);
+
+    if (refreshed) {
+      response = await fetchWithCookies(targetUrl, request.method, body, cookieStore);
+    }
+  }
 
   const responseBody = await response.text();
 
@@ -47,6 +42,24 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
       "Content-Type": response.headers.get("Content-Type") ?? "application/json",
     },
   });
+}
+
+async function fetchWithCookies(
+  url: string,
+  method: string,
+  body: string | undefined,
+  cookieStore: Awaited<ReturnType<typeof cookies>>,
+) {
+  const cookieHeader = buildCookieHeader(cookieStore.getAll());
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (cookieHeader) {
+    headers["Cookie"] = cookieHeader;
+  }
+
+  return fetch(url, { method, headers, body, cache: "no-store" });
 }
 
 export const GET = proxyRequest;
