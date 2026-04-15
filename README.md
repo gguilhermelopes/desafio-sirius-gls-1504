@@ -82,7 +82,6 @@ docker compose down           # para tudo
 docker compose logs -f        # acompanha logs
 ```
 
-> O PostgreSQL roda na porta 55432 pra nao conflitar com uma instancia local.
 
 ## Decisoes tecnicas
 
