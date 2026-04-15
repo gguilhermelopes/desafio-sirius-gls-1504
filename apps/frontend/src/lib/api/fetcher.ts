@@ -3,7 +3,7 @@ const INTERNAL_API_URL = process.env.INTERNAL_API_URL;
 const API_URL =
   typeof window === "undefined"
     ? INTERNAL_API_URL || PUBLIC_API_URL
-    : PUBLIC_API_URL;
+    : "/api/proxy";
 
 export class ApiError extends Error {
   constructor(
