@@ -15,7 +15,7 @@ export const envSchema = z.object({
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
   COOKIE_DOMAIN: z.string().default(''),
   COOKIE_SECURE: z.enum(['true', 'false']).default('false'),
-  GEMINI_API_KEY: z.string().optional().transform((v) => v || undefined),
+  GROQ_API_KEY: z.string().optional().transform((v) => v || undefined),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;
