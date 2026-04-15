@@ -4,8 +4,8 @@ import { Test } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
-import { PrismaService } from '../src/infrastructure/database/prisma.service';
-import { getSetCookieHeaders, toCookieHeader } from './helpers/cookies';
+import { PrismaService } from '../../src/infrastructure/database/prisma.service';
+import { getSetCookieHeaders, toCookieHeader } from '../helpers/cookies';
 
 process.env.NODE_ENV = 'test';
 process.env.PORT = '3001';
@@ -22,10 +22,10 @@ process.env.DATABASE_URL ??= `postgresql://postgres:postgres@localhost:${process
 describe('Auth bootstrap (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  let AppModule: typeof import('../src/app.module').AppModule;
+  let AppModule: typeof import('../../src/app.module').AppModule;
 
   beforeAll(async () => {
-    ({ AppModule } = await import('../src/app.module'));
+    ({ AppModule } = await import('../../src/app.module'));
 
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],

@@ -20,12 +20,13 @@ describe("LoginForm", () => {
       <LoginForm messages={loginMessages} />,
     );
 
-    expect(html).toContain("login-form");
+    expect(html).toContain("grid gap-4");
     expect(html).toContain("placeholder=\"seu@email.com\"");
     expect(html).toContain("placeholder=\"*******\"");
     expect(html).toContain("Mostrar senha");
     expect(html).toContain(">Entrar<");
     expect(html).toContain("Não tem conta?");
     expect(html).toContain(">Cadastre-se<");
+    expect(html).toContain("text-blue-600");
   });
 });

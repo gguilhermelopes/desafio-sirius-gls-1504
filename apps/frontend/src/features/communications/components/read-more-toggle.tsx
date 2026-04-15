@@ -1,6 +1,10 @@
 "use client";
 
+import React from "react";
 import { useState } from "react";
+import clsx from "clsx";
+import { FormattedCommunicationContent } from "./formatted-communication-content";
+import { normalizeCommunicationContent } from "../lib/content-format";
 
 export function ReadMoreToggle({
   content,
@@ -12,15 +16,21 @@ export function ReadMoreToggle({
   readLessLabel: string;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const normalizedContent = normalizeCommunicationContent(content);
 
   return (
     <div>
-      <p className={`comm-card-content${expanded ? "" : " is-truncated"}`}>
-        {content}
+      <p
+        className={clsx(
+          "font-sans font-normal text-[16px] leading-[1.5] text-neutral-800",
+          !expanded && "line-clamp-3"
+        )}
+      >
+        <FormattedCommunicationContent content={content} />
       </p>
-      {content.length > 300 && (
+      {normalizedContent.length > 300 && (
         <button
-          className="comm-card-read-more"
+          className="font-sans font-normal text-[13px] leading-[1.2] text-neutral-800 bg-transparent border-none p-0 cursor-pointer mt-2 hover:underline"
           onClick={() => setExpanded((prev) => !prev)}
           type="button"
         >

@@ -10,6 +10,7 @@ export function CommunicationTimeline({
     date: string;
     recipients: string;
     contentOfMovement: string;
+    transitouEmJulgado: string;
     summarize: string;
     summaryModalTitle: string;
     summaryModalDescription: string;
@@ -19,7 +20,7 @@ export function CommunicationTimeline({
   };
 }) {
   return (
-    <div className="proc-timeline">
+    <div className="divide-y divide-neutral-300">
       {communications.map((c) => (
         <TimelineEntry key={c.id} communication={c} messages={messages} />
       ))}

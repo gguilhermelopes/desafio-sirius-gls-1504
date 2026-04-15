@@ -9,7 +9,7 @@ export function Skeleton({
 }) {
   return (
     <div
-      className={`skeleton${className ? ` ${className}` : ""}`}
+      className={`bg-neutral-200 rounded-md animate-[skeleton-pulse_1.5s_ease-in-out_infinite]${className ? ` ${className}` : ""}`}
       style={{ width, height }}
       aria-hidden="true"
     />

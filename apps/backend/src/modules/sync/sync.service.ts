@@ -4,6 +4,8 @@ import { CommunicationsRepository } from '../communications/communications.repos
 import { TribunalsRepository } from '../tribunals/tribunals.repository';
 import { PjeApiClient } from './pje-api.client';
 
+const UPSERT_CONCURRENCY = 4;
+
 @Injectable()
 export class SyncService {
   private readonly logger = new Logger(SyncService.name);
@@ -63,13 +65,24 @@ export class SyncService {
 
         recordsFetched += result.items.length;
 
-        for (const item of result.items) {
-          try {
-            await this.upsertCommunication(item);
-            recordsSaved++;
-          } catch (error) {
-            this.logger.error(`Failed to save communication ${item.id}`, error);
-          }
+        for (let index = 0; index < result.items.length; index += UPSERT_CONCURRENCY) {
+          const batch = result.items.slice(index, index + UPSERT_CONCURRENCY);
+          const outcomes = await Promise.allSettled(
+            batch.map((item) => this.upsertCommunication(item)),
+          );
+
+          outcomes.forEach((outcome, outcomeIndex) => {
+            if (outcome.status === 'fulfilled') {
+              recordsSaved++;
+              return;
+            }
+
+            const item = batch[outcomeIndex];
+            this.logger.error(
+              `Failed to save communication ${item.id}`,
+              outcome.reason,
+            );
+          });
         }
 
         this.logger.log(`Date ${date} page ${page}: ${result.items.length} items (total fetched: ${recordsFetched})`);

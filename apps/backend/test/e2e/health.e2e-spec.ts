@@ -14,10 +14,10 @@ process.env.COOKIE_SECURE = 'false';
 
 describe('HealthController (e2e)', () => {
   let app: INestApplication;
-  let AppModule: typeof import('../src/app.module').AppModule;
+  let AppModule: typeof import('../../src/app.module').AppModule;
 
   beforeAll(async () => {
-    ({ AppModule } = await import('../src/app.module'));
+    ({ AppModule } = await import('../../src/app.module'));
 
     const moduleFixture = await Test.createTestingModule({
       imports: [AppModule],

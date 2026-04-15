@@ -1,6 +1,8 @@
 export const ptBRMessages = {
   common: {
-    appName: "JusCash"
+    appName: "JusCash",
+    userMenuError: "Não foi possível encerrar sua sessão agora. Tente novamente.",
+    userMenuLogout: "Sair da conta",
   },
   auth: {
     loginTitle: "Bem-vindo de volta",
@@ -27,7 +29,7 @@ export const ptBRMessages = {
     title: "Comunicações",
     description: "Acompanhe as comunicações processuais obtidas do Diário de Justiça Eletrônico Nacional, organizadas e salvas automaticamente para sua consulta.",
     searchPlaceholder: "Buscar por número do processo",
-    tribunalPlaceholder: "Tribunal",
+    tribunalPlaceholder: "Selecione um tribunal",
     dateRangePlaceholder: "Data inicial - Data final",
     emptyTitle: "Nenhuma comunicação encontrada",
     emptyDescription: "Não encontramos resultados para os filtros aplicados. Tente ajustar os critérios de busca.",

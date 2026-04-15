@@ -92,23 +92,15 @@ export function LoginForm({ messages }: LoginFormProps) {
   }
 
   return (
-    <form className="login-form" noValidate onSubmit={handleSubmit(onSubmit)}>
-      <div className="login-fields">
+    <form className="grid gap-4" noValidate onSubmit={handleSubmit(onSubmit)}>
+      <div className="grid gap-4">
         <AuthTextField
           autoComplete="email"
           autoFocus
           error={emailError}
-          fieldClassName="login-field"
-          helperClassName="login-field-helper"
-          helperErrorClassName="is-error"
-          helperVisibleClassName="is-visible"
-          inputClassName="login-input"
           label={messages.auth.emailLabel}
-          labelClassName="login-field-label"
           placeholder="seu@email.com"
           reserveHelperSpace
-          shellClassName="login-input-shell"
-          shellInvalidClassName="is-invalid"
           type="email"
           {...register("email")}
         />
@@ -116,46 +108,43 @@ export function LoginForm({ messages }: LoginFormProps) {
         <AuthPasswordField
           autoComplete="current-password"
           error={passwordError}
-          fieldClassName="login-field"
-          helperClassName="login-field-helper"
-          helperErrorClassName="is-error"
-          helperVisibleClassName="is-visible"
-          inputClassName="login-input"
           label={messages.auth.passwordLabel}
-          labelClassName="login-field-label"
           placeholder="*******"
           reserveHelperSpace
-          shellClassName="login-input-shell"
-          shellInvalidClassName="is-invalid"
-          toggleButtonClassName="login-password-toggle"
-          toggleIconClassName="login-password-icon"
           {...register("password")}
         />
       </div>
 
       {rootError ? (
-        <div className="login-inline-error" role="alert">
-          <span className="login-inline-error-icon" aria-hidden="true" />
+        <div className="flex items-start gap-2 m-0 text-red-600 text-[13px] leading-[1.2]" role="alert">
+          <span
+            className="relative flex-none w-4 h-4 mt-px border-[1.6px] border-current rounded-full before:content-['!'] before:absolute before:inset-0 before:grid before:place-items-center before:text-[11px] before:font-bold before:leading-none"
+            aria-hidden="true"
+          />
           <span>{rootError}</span>
         </div>
       ) : null}
 
       <AuthSubmitButton
-        className="login-submit"
         disabled={loginMutation.isPending}
         loading={loginMutation.isPending}
         loadingContent={
-          <span className="login-submit-spinner" aria-label="Entrando" />
+          <span
+            className="inline-block w-4 h-4 border-2 border-neutral-50/35 border-t-neutral-50 rounded-full animate-[login-spin_0.9s_linear_infinite]"
+            aria-label="Entrando"
+          />
         }
       >
         {messages.auth.loginButton}
       </AuthSubmitButton>
 
-      <p className="login-footer-link">
+      <p className="m-0 text-center text-[13px] leading-[1.2] text-neutral-800">
         {registerLinkCopy.prefix ? (
-          <span className="login-footer-prefix">{registerLinkCopy.prefix} </span>
+          <span>{registerLinkCopy.prefix} </span>
         ) : null}
-        <Link href="/register">{registerLinkCopy.cta}</Link>
+        <Link className="font-normal text-blue-600 no-underline hover:underline" href="/register">
+          {registerLinkCopy.cta}
+        </Link>
       </p>
     </form>
   );

@@ -9,43 +9,21 @@ type AuthPasswordFieldProps = Omit<
   "className" | "type"
 > & {
   error?: string;
-  errorClassName?: string;
-  fieldClassName?: string;
   helper?: string;
-  helperClassName?: string;
-  helperErrorClassName?: string;
-  helperVisibleClassName?: string;
-  inputClassName?: string;
   label: string;
-  labelClassName?: string;
   reserveHelperSpace?: boolean;
-  shellClassName?: string;
-  shellInvalidClassName?: string;
   showHelperWithError?: boolean;
-  toggleButtonClassName?: string;
   toggleHideLabel?: string;
-  toggleIconClassName?: string;
   toggleShowLabel?: string;
 };
 
 export function AuthPasswordField({
   error,
-  errorClassName,
-  fieldClassName,
   helper,
-  helperClassName,
-  helperErrorClassName,
-  helperVisibleClassName,
-  inputClassName,
   label,
-  labelClassName,
   reserveHelperSpace = false,
-  shellClassName,
-  shellInvalidClassName,
   showHelperWithError = false,
-  toggleButtonClassName,
   toggleHideLabel = "Ocultar senha",
-  toggleIconClassName,
   toggleShowLabel = "Mostrar senha",
   ...inputProps
 }: AuthPasswordFieldProps) {
@@ -55,23 +33,14 @@ export function AuthPasswordField({
     <AuthTextField
       {...inputProps}
       error={error}
-      errorClassName={errorClassName}
-      fieldClassName={fieldClassName}
       helper={helper}
-      helperClassName={helperClassName}
-      helperErrorClassName={helperErrorClassName}
-      helperVisibleClassName={helperVisibleClassName}
-      inputClassName={inputClassName}
       label={label}
-      labelClassName={labelClassName}
       reserveHelperSpace={reserveHelperSpace}
-      shellClassName={shellClassName}
-      shellInvalidClassName={shellInvalidClassName}
       showHelperWithError={showHelperWithError}
       trailingAdornment={
         <button
           aria-label={showPassword ? toggleHideLabel : toggleShowLabel}
-          className={toggleButtonClassName}
+          className="inline-flex items-center justify-center w-5 h-5 p-0 border-0 bg-transparent text-neutral-800 cursor-pointer"
           onClick={(event) => {
             event.preventDefault();
             setShowPassword((current) => !current);
@@ -80,7 +49,7 @@ export function AuthPasswordField({
         >
           <svg
             aria-hidden="true"
-            className={toggleIconClassName}
+            className="w-4 h-4 block"
             fill="none"
             viewBox="0 0 16 16"
             xmlns="http://www.w3.org/2000/svg"

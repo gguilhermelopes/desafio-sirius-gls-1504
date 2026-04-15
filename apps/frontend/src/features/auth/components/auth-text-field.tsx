@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React, { useId } from "react";
 
 type AuthTextFieldProps = Omit<
@@ -5,36 +6,18 @@ type AuthTextFieldProps = Omit<
   "className"
 > & {
   error?: string;
-  errorClassName?: string;
-  fieldClassName?: string;
   helper?: string;
-  helperClassName?: string;
-  helperErrorClassName?: string;
-  helperVisibleClassName?: string;
-  inputClassName?: string;
   label: string;
-  labelClassName?: string;
   reserveHelperSpace?: boolean;
-  shellClassName?: string;
-  shellInvalidClassName?: string;
   showHelperWithError?: boolean;
   trailingAdornment?: React.ReactNode;
 };
 
 export function AuthTextField({
   error,
-  errorClassName,
-  fieldClassName,
   helper,
-  helperClassName,
-  helperErrorClassName,
-  helperVisibleClassName,
-  inputClassName,
   label,
-  labelClassName,
   reserveHelperSpace = false,
-  shellClassName,
-  shellInvalidClassName,
   showHelperWithError = false,
   trailingAdornment,
   ...inputProps
@@ -44,20 +27,6 @@ export function AuthTextField({
   const errorId = `${id}-error`;
 
   const helperText = helper ?? (reserveHelperSpace ? "\u00A0" : null);
-  const helperClasses = [
-    helperClassName,
-    helperText ? helperVisibleClassName : null,
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const errorClasses =
-    errorClassName ??
-    [helperClassName, helperVisibleClassName, helperErrorClassName]
-      .filter(Boolean)
-      .join(" ");
-  const shellClasses = [shellClassName, error ? shellInvalidClassName : null]
-    .filter(Boolean)
-    .join(" ");
 
   const describedBy = [
     error ? errorId : null,
@@ -70,27 +39,42 @@ export function AuthTextField({
     <input
       aria-describedby={describedBy}
       aria-invalid={Boolean(error)}
-      className={inputClassName}
+      className="w-full min-w-0 border-0 p-0 bg-transparent text-neutral-800 font-[inherit] placeholder:text-neutral-muted focus:outline-none"
       {...inputProps}
     />
   );
 
   return (
-    <label className={fieldClassName}>
-      <span className={labelClassName}>{label}</span>
-      {shellClasses || trailingAdornment ? (
-        <div className={shellClasses}>
-          {inputElement}
-          {trailingAdornment}
-        </div>
-      ) : (
-        inputElement
-      )}
+    <label className="grid gap-2">
+      <span className="text-neutral-800 text-base leading-[1.2]">{label}</span>
+      <div
+        className={clsx(
+          "flex items-center gap-2 h-9 px-3 border rounded-md bg-neutral-50",
+          error ? "border-red-600" : "border-neutral-300"
+        )}
+      >
+        {inputElement}
+        {trailingAdornment}
+      </div>
       {helperText && (!error || showHelperWithError) ? (
-        <small className={helperClasses} id={helperId}>{helperText}</small>
+        <small
+          className={clsx(
+            "m-0 min-h-4",
+            helperText ? "text-neutral-muted" : "text-transparent"
+          )}
+          id={helperId}
+        >
+          {helperText}
+        </small>
       ) : null}
       {error ? (
-        <small className={errorClasses} id={errorId} role="alert">{error}</small>
+        <small
+          className="m-0 min-h-4 text-red-600"
+          id={errorId}
+          role="alert"
+        >
+          {error}
+        </small>
       ) : null}
     </label>
   );

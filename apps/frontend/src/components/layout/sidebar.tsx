@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -26,23 +28,36 @@ const MENU_ITEMS = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ expanded }: { expanded: boolean }) {
   const pathname = usePathname();
 
   return (
-    <nav className="dash-sidebar" aria-label="Menu principal">
-      <ul className="dash-sidebar-list">
+    <nav
+      aria-label="Menu principal"
+      className={clsx(
+        "col-start-1 row-start-2 overflow-hidden border-r border-neutral-300 bg-neutral-50 p-3 max-md:hidden",
+        expanded ? "w-[232px]" : "w-[72px]"
+      )}
+    >
+      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
         {MENU_ITEMS.map((item, index) => {
-          const isActive = pathname.startsWith(item.href);
+          const isActive = index === 0 && pathname.startsWith("/communications");
           return (
             <li key={index}>
               <Link
                 href={item.href}
-                className={`dash-sidebar-item${isActive ? " is-active" : ""}`}
+                className={clsx(
+                  "flex h-9 w-full items-center gap-3 rounded-md px-3 text-neutral-800 no-underline hover:bg-neutral-100",
+                  !expanded && "justify-center px-0",
+                  isActive && "bg-neutral-100 font-semibold"
+                )}
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
               >
-                {item.icon}
+                <span className="inline-flex w-4 shrink-0 items-center justify-center">{item.icon}</span>
+                {expanded && (
+                  <span className="whitespace-nowrap font-sans text-[13px] font-medium leading-[1.2]">{item.label}</span>
+                )}
               </Link>
             </li>
           );

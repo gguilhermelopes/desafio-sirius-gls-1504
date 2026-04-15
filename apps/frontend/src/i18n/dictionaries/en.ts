@@ -1,6 +1,8 @@
 export const enMessages = {
   common: {
-    appName: "JusCash"
+    appName: "JusCash",
+    userMenuError: "Could not sign you out right now. Please try again.",
+    userMenuLogout: "Sign out",
   },
   auth: {
     loginTitle: "Welcome back",
@@ -27,7 +29,7 @@ export const enMessages = {
     title: "Communications",
     description: "Follow court communications from the National Electronic Justice Gazette, automatically organized and saved for your reference.",
     searchPlaceholder: "Search by process number",
-    tribunalPlaceholder: "Tribunal",
+    tribunalPlaceholder: "Select a tribunal",
     dateRangePlaceholder: "Start date - End date",
     emptyTitle: "No communications found",
     emptyDescription: "We couldn't find results for the applied filters. Try adjusting your search criteria.",

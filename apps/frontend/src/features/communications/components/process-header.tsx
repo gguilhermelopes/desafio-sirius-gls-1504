@@ -1,4 +1,5 @@
 import { ProcessDetailResponse } from "@juscash/shared";
+import { Gavel, Users, Clock } from "lucide-react";
 
 export function ProcessHeader({
   data,
@@ -13,33 +14,36 @@ export function ProcessHeader({
   };
 }) {
   return (
-    <div className="proc-header">
-      <div className="proc-header-top">
-        <div>
-          <h1 className="proc-header-title">
-            {data.process.number}
-            {data.process.className ? ` - ${data.process.className}` : ""}
-          </h1>
-          <div className="proc-header-info">
-            <span className="proc-header-chip">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /></svg>
-              {data.process.tribunal.sigla}
-            </span>
-            <span className="proc-header-chip">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-              {data.recipients.join(", ")}
-            </span>
-            <span className="proc-header-chip">
-              {data.process.communicationsCount} {messages.updates}
-            </span>
-          </div>
-        </div>
+    <div className="mb-6">
+      <div className="flex items-start justify-between gap-4 mb-3">
+        <h1 className="font-sans font-bold text-[20px] leading-[1.2] text-neutral-800 m-0">
+          {data.process.number}
+          {data.process.className ? ` - ${data.process.className}` : ""}
+        </h1>
         {data.process.hasTransitado && (
-          <span className="proc-badge-transitado">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></svg>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#fef2ec] rounded-md font-sans font-normal text-[13px] leading-[1.2] text-[#9d231c] whitespace-nowrap shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
             {messages.transitouEmJulgado}
           </span>
         )}
+      </div>
+      <div className="flex items-center gap-2 flex-wrap font-sans font-normal text-[16px] leading-[1.2] text-neutral-800">
+        <span className="inline-flex items-center gap-1.5 [&>svg]:text-neutral-muted">
+          <Gavel size={16} />
+          {data.process.tribunal.sigla}
+        </span>
+        <span className="text-neutral-300">|</span>
+        <span className="inline-flex items-center gap-1.5 [&>svg]:text-neutral-muted">
+          <Users size={16} />
+          {data.recipients.join(", ")}
+        </span>
+        <span className="text-neutral-300">|</span>
+        <span className="inline-flex items-center gap-1.5 [&>svg]:text-neutral-muted">
+          <Clock size={16} />
+          {data.process.communicationsCount} {messages.updates}
+        </span>
       </div>
     </div>
   );

@@ -88,27 +88,38 @@ export class CommunicationsRepository {
   async findProcessByNumber(number: string) {
     const process = await this.prisma.process.findUnique({
       where: { number },
-      include: {
+      select: {
+        number: true,
+        className: true,
+        hasTransitado: true,
         tribunal: { select: { sigla: true } },
-        communications: {
-          include: {
-            recipients: {
-              select: { name: true, type: true, role: true },
-            },
-          },
-          orderBy: { publicationDate: 'desc' },
-        },
       },
     });
 
     if (!process) return null;
 
-    const allRecipients = new Set<string>();
-    for (const comm of process.communications) {
-      for (const r of comm.recipients) {
-        allRecipients.add(r.name);
-      }
-    }
+    const [communications, recipients] = await Promise.all([
+      this.prisma.communication.findMany({
+        where: { process: { number } },
+        select: {
+          id: true,
+          publicationDate: true,
+          type: true,
+          content: true,
+          aiSummary: true,
+          recipients: {
+            select: { name: true, type: true, role: true },
+          },
+        },
+        orderBy: { publicationDate: 'desc' },
+      }),
+      this.prisma.recipient.findMany({
+        where: { communication: { process: { number } } },
+        select: { name: true },
+        distinct: ['name'],
+        orderBy: { name: 'asc' },
+      }),
+    ]);
 
     return {
       process: {
@@ -116,10 +127,10 @@ export class CommunicationsRepository {
         className: process.className,
         tribunal: { sigla: process.tribunal.sigla },
         hasTransitado: process.hasTransitado,
-        communicationsCount: process.communications.length,
+        communicationsCount: communications.length,
       },
-      recipients: Array.from(allRecipients),
-      communications: process.communications.map((c) => ({
+      recipients: recipients.map((recipient) => recipient.name),
+      communications: communications.map((c) => ({
         id: c.id,
         publicationDate: c.publicationDate.toISOString(),
         type: c.type,

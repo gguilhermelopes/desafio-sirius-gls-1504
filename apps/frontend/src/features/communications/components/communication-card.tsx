@@ -1,6 +1,9 @@
+import React from "react";
 import Link from "next/link";
 import { CommunicationListItem } from "@juscash/shared";
-import { ReadMoreToggle } from "./read-more-toggle";
+import { Scale, Calendar, Gavel, Clock, Users, FileText } from "lucide-react";
+import { SummarizeButton } from "./summarize-button";
+import { FormattedCommunicationContent } from "./formatted-communication-content";
 
 function formatDate(isoDate: string): string {
   return new Date(isoDate).toLocaleDateString("pt-BR");
@@ -18,51 +21,86 @@ export function CommunicationCard({
     communicationType: string;
     recipients: string;
     content: string;
-    readMore: string;
-    readLess: string;
+    summarize: string;
+    summaryModalTitle: string;
+    summaryModalDescription: string;
+    summaryModalClose: string;
+    summaryLoading: string;
+    summaryError: string;
   };
 }) {
   const recipientNames = item.recipients.map((r) => r.name).join(", ");
 
   return (
-    <article className="comm-card">
-      <div className="comm-card-header">
-        <div>
+    <article className="mb-4 overflow-hidden rounded-md border border-neutral-300 bg-neutral-50 p-4 sm:p-6">
+      {/* Top row: Processo + Data + Resumir */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <FieldLabel icon={<Scale size={14} />} label={messages.process} />
           <Link
             href={`/communications/${encodeURIComponent(item.process.number)}`}
-            className="comm-card-process"
+            className="font-sans text-[16px] leading-[1.4] text-neutral-800 no-underline hover:underline"
           >
             {item.process.number}
             {item.process.className ? ` - ${item.process.className}` : ""}
           </Link>
         </div>
-        <div className="comm-card-date-right">
-          <div className="comm-card-date-label">{messages.date}</div>
-          <div>{formatDate(item.publicationDate)}</div>
+
+        <div className="flex items-start gap-4 max-sm:justify-between">
+          <div className="sm:text-right">
+            <FieldLabel icon={<Calendar size={14} />} label={messages.date} />
+            <div className="font-sans text-[16px] leading-[1.4] text-neutral-800">
+              {formatDate(item.publicationDate)}
+            </div>
+          </div>
+          <SummarizeButton
+            communicationId={item.id}
+            cachedSummary={null}
+            messages={messages}
+          />
         </div>
       </div>
 
-      <div className="comm-card-fields">
+      {/* Tribunal + Tipo da comunicação */}
+      <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-2">
         <div>
-          <div className="comm-card-field-label">{messages.tribunal}</div>
-          <div className="comm-card-field-value">{item.process.tribunal.sigla}</div>
+          <FieldLabel icon={<Gavel size={14} />} label={messages.tribunal} />
+          <div className="font-sans text-[16px] leading-[1.4] text-neutral-800">
+            {item.process.tribunal.sigla}
+          </div>
         </div>
         <div>
-          <div className="comm-card-field-label">{messages.communicationType}</div>
-          <div className="comm-card-field-value">{item.type}</div>
-        </div>
-        <div style={{ gridColumn: "1 / -1" }}>
-          <div className="comm-card-field-label">{messages.recipients}</div>
-          <div className="comm-card-field-value">{recipientNames || "—"}</div>
+          <FieldLabel icon={<Clock size={14} />} label={messages.communicationType} />
+          <div className="font-sans text-[16px] leading-[1.4] text-neutral-800">
+            {item.type}
+          </div>
         </div>
       </div>
 
-      <div className="comm-card-content-label">{messages.content}</div>
-      <ReadMoreToggle
-        content={item.content}
-        readMoreLabel={messages.readMore}
-        readLessLabel={messages.readLess}
-      />
+      {/* Destinatários */}
+      <div className="mb-4">
+        <FieldLabel icon={<Users size={14} />} label={messages.recipients} />
+        <div className="break-words font-sans text-[16px] leading-[1.4] text-neutral-800 line-clamp-2">
+          {recipientNames || "—"}
+        </div>
+      </div>
+
+      {/* Conteúdo */}
+      <div>
+        <FieldLabel icon={<FileText size={14} />} label={messages.content} />
+        <p className="font-sans font-normal text-[16px] leading-[1.5] text-neutral-800 line-clamp-3 m-0">
+          <FormattedCommunicationContent content={item.content} />
+        </p>
+      </div>
     </article>
+  );
+}
+
+function FieldLabel({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="mb-0.5 flex items-center gap-1.5 font-sans text-[13px] font-bold leading-[1.2] text-neutral-muted">
+      {icon}
+      <span>{label}</span>
+    </div>
   );
 }

@@ -20,7 +20,7 @@ describe("RegisterForm", () => {
       <RegisterForm messages={registerMessages} />,
     );
 
-    expect(html).toContain("register-form");
+    expect(html).toContain("grid gap-4");
     expect(html).toContain("placeholder=\"Seu nome\"");
     expect(html).toContain("placeholder=\"seu@email.com\"");
     expect(html).toContain("placeholder=\"*******\"");
@@ -28,5 +28,6 @@ describe("RegisterForm", () => {
     expect(html).toContain(">Criar conta<");
     expect(html).toContain("Já tem conta?");
     expect(html).toContain(">Entrar<");
+    expect(html).toContain("text-blue-600");
   });
 });

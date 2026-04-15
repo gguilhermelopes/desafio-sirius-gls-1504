@@ -31,6 +31,36 @@ vi.mock("@/components/layout/sidebar", () => ({
   Sidebar: () => <div>Sidebar</div>,
 }));
 
+vi.mock("@/i18n/config", () => ({
+  DEFAULT_LOCALE: "pt-BR",
+  SUPPORTED_LOCALES: ["pt-BR", "en"],
+}));
+
+vi.mock("@/i18n/messages", () => ({
+  getMessages: () => ({
+    common: {
+      userMenuError: "Erro ao sair",
+      userMenuLogout: "Sair da conta",
+    },
+  }),
+}));
+
+vi.mock("@/components/layout/dashboard-shell", () => ({
+  DashboardShell: ({
+    children,
+    user,
+  }: {
+    children: React.ReactNode;
+    user: { name: string; email: string };
+  }) => (
+    <div>
+      <span>{user.name}</span>
+      <span>{user.email}</span>
+      {children}
+    </div>
+  ),
+}));
+
 describe("auth routing", () => {
   beforeEach(() => {
     redirectMock.mockClear();

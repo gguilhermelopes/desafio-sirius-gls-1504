@@ -16,9 +16,12 @@ describe("Register shell", () => {
       </LoginShell>,
     );
 
-    expect(html).toContain("login-layout");
+    expect(html).toContain("min-h-screen");
     expect(html).toContain("Criar conta");
     expect(html).toContain("Preencha os dados para se cadastrar");
     expect(html).toContain("register-form");
+    expect(html).toContain("max-w-[312px]");
+    expect(html).toContain("sm:max-w-[460px]");
+    expect(html).toContain("h-[calc(100vh-48px)]");
   });
 });

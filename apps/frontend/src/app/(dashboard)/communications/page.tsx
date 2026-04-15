@@ -30,9 +30,9 @@ export default async function CommunicationsPage(props: {
 
   return (
     <>
-      <div className="comm-header-card">
-        <h1 className="comm-header-title">{messages.communications.title}</h1>
-        <p className="comm-header-description">{messages.communications.description}</p>
+      <div className="bg-neutral-50 border border-neutral-300 rounded-md p-6 mb-4 max-md:p-4">
+        <h1 className="font-sans font-bold text-xl leading-[1.2] text-neutral-800 m-0 mb-2 max-[430px]:text-lg">{messages.communications.title}</h1>
+        <p className="font-sans text-base leading-[1.4] text-neutral-800 m-0 max-[430px]:text-sm">{messages.communications.description}</p>
       </div>
 
       <FiltersBar messages={messages.communications} />
