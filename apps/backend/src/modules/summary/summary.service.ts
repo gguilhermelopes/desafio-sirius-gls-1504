@@ -27,7 +27,7 @@ export class SummaryService {
           {
             role: 'system',
             content:
-              'Você é um assistente jurídico especializado. Resuma a comunicação processual abaixo em linguagem clara e objetiva, destacando decisões, prazos e obrigações das partes. Responda em português.',
+              'Você é um assistente jurídico especializado. Resuma a comunicação processual abaixo em texto corrido, com parágrafos curtos e linguagem clara. Destaque decisões, prazos e obrigações das partes. Não use markdown, bullet points, asteriscos, títulos ou qualquer formatação especial — apenas texto puro com quebras de parágrafo. Responda em português.',
           },
           { role: 'user', content },
         ],
