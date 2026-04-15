@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { buildCookieHeader } from "@/lib/auth/get-session";
-import { tryRefreshTokens } from "@/lib/auth/refresh-tokens";
 
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL;
 const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -24,16 +23,7 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     ? await request.text()
     : undefined;
 
-  let response = await fetchWithCookies(targetUrl, request.method, body, cookieStore);
-
-  if (response.status === 401) {
-    const refreshed = await tryRefreshTokens(cookieStore);
-
-    if (refreshed) {
-      response = await fetchWithCookies(targetUrl, request.method, body, cookieStore);
-    }
-  }
-
+  const response = await fetchWithCookies(targetUrl, request.method, body, cookieStore);
   const responseBody = await response.text();
 
   return new NextResponse(responseBody || null, {
