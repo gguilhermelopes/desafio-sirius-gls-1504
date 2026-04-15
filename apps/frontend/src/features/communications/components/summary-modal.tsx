@@ -27,7 +27,7 @@ export function SummaryModal({
   return (
     <Modal open={open} onClose={onClose}>
       {/* Header */}
-      <div className="flex items-start justify-between p-6 pb-0">
+      <div className="flex items-start justify-between p-4 pb-0 sm:p-6 sm:pb-0">
         <div>
           <h2 className="font-bold text-[20px] leading-[1.2] font-sans text-neutral-800 m-0 mb-1">
             {messages.summaryModalTitle}
@@ -47,14 +47,14 @@ export function SummaryModal({
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 font-normal text-[16px] leading-[1.5] font-sans text-neutral-800">
+      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 font-normal text-[16px] leading-[1.5] font-sans text-neutral-800">
         {loading && <p className="m-0">{messages.summaryLoading}</p>}
-        {error && <p className="m-0 text-red-700">{error}</p>}
+        {error && <p className="m-0 text-red-700" role="alert">{error}</p>}
         {summary && <p className="m-0 whitespace-pre-line">{summary}</p>}
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-end gap-3 border-t border-neutral-300 px-6 py-6">
+      <div className="flex items-center justify-end gap-3 border-t border-neutral-300 px-4 py-4 sm:px-6 sm:py-6">
         <button
           type="button"
           onClick={onClose}

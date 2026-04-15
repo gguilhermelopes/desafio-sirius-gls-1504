@@ -2,6 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const fetchMock = vi.fn();
 
+vi.mock("next/headers", () => ({
+  cookies: vi.fn().mockResolvedValue({
+    getAll: () => [],
+    set: vi.fn(),
+    delete: vi.fn(),
+  }),
+}));
+
 describe("logoutAction", () => {
   beforeEach(() => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.test");
@@ -30,14 +38,7 @@ describe("logoutAction", () => {
   });
 
   it("returns a friendly error when the API fails", async () => {
-    fetchMock.mockResolvedValueOnce(
-      new Response(JSON.stringify({ message: "boom" }), {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
-    );
+    fetchMock.mockRejectedValueOnce(new Error("Network error"));
 
     const { logoutAction } = await import("../actions/logout");
     const result = await logoutAction();

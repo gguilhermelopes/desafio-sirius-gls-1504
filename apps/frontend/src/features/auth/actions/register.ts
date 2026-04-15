@@ -1,10 +1,13 @@
-import { ApiError, apiFetch } from "../../../lib/api/fetcher";
-import { AuthUser, RegisterRequest } from "@juscash/shared";
+"use server";
+
+import { cookies } from "next/headers";
+import { RegisterRequest } from "@juscash/shared";
 import {
   AuthActionResult,
   mapFieldErrors,
   registerSchema,
 } from "../schemas/auth";
+import { authFetch, forwardAuthCookies } from "./auth-fetch";
 
 type RegisterField = Extract<keyof RegisterRequest, string>;
 
@@ -21,15 +24,13 @@ export async function registerAction(
     };
   }
 
-  try {
-    await apiFetch<AuthUser>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(parsed.data),
-    });
+  const response = await authFetch("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(parsed.data),
+  });
 
-    return { success: true };
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 409) {
+  if (!response.ok) {
+    if (response.status === 409) {
       return {
         error: "Este e-mail já está em uso.",
         success: false,
@@ -41,4 +42,9 @@ export async function registerAction(
       success: false,
     };
   }
+
+  const cookieStore = await cookies();
+  forwardAuthCookies(response, cookieStore);
+
+  return { success: true };
 }

@@ -2,6 +2,14 @@ import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 const fetchMock = vi.fn();
 
+vi.mock("next/headers", () => ({
+  cookies: vi.fn().mockResolvedValue({
+    getAll: () => [],
+    set: vi.fn(),
+    delete: vi.fn(),
+  }),
+}));
+
 describe("loginAction", () => {
   beforeEach(() => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.test");

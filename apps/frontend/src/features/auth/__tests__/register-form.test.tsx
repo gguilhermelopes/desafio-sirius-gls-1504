@@ -28,6 +28,6 @@ describe("RegisterForm", () => {
     expect(html).toContain(">Criar conta<");
     expect(html).toContain("Já tem conta?");
     expect(html).toContain(">Entrar<");
-    expect(html).toContain("text-blue-600");
+    expect(html).toContain("text-[#105abc]");
   });
 });

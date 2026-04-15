@@ -13,6 +13,7 @@ export function FiltersBar({ messages }: { messages: { searchPlaceholder: string
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const [tribunals, setTribunals] = useState<TribunalItem[]>([]);
+  const [tribunalsError, setTribunalsError] = useState(false);
   const [isDateMenuOpen, setIsDateMenuOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const dateMenuRef = useRef<HTMLDivElement>(null);
@@ -33,7 +34,7 @@ export function FiltersBar({ messages }: { messages: { searchPlaceholder: string
   useEffect(() => {
     apiFetch<{ items: TribunalItem[] }>("/tribunals")
       .then((data) => setTribunals(data.items))
-      .catch(() => {});
+      .catch(() => setTribunalsError(true));
   }, []);
 
   useEffect(() => {
@@ -115,17 +116,36 @@ export function FiltersBar({ messages }: { messages: { searchPlaceholder: string
         />
       </div>
       <div>
-        <CustomSelect
-          ariaLabel="Selecionar tribunal"
-          onChange={handleTribunalChange}
-          options={tribunals.map((tribunal) => ({
-            description: tribunal.name,
-            label: tribunal.sigla,
-            value: String(tribunal.id),
-          }))}
-          placeholder={messages.tribunalPlaceholder}
-          value={tribunalId}
-        />
+        {tribunalsError ? (
+          <button
+            type="button"
+            className="flex min-h-9 w-full items-center justify-between gap-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-left font-sans text-[13px] leading-[1.2] text-red-700 cursor-pointer"
+            onClick={() => {
+              setTribunalsError(false);
+              apiFetch<{ items: TribunalItem[] }>("/tribunals")
+                .then((data) => setTribunals(data.items))
+                .catch(() => setTribunalsError(true));
+            }}
+            aria-label="Erro ao carregar tribunais. Clique para tentar novamente."
+          >
+            <span className="truncate">Erro ao carregar tribunais</span>
+            <svg className="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
+            </svg>
+          </button>
+        ) : (
+          <CustomSelect
+            ariaLabel="Selecionar tribunal"
+            onChange={handleTribunalChange}
+            options={tribunals.map((tribunal) => ({
+              description: tribunal.name,
+              label: tribunal.sigla,
+              value: String(tribunal.id),
+            }))}
+            placeholder={messages.tribunalPlaceholder}
+            value={tribunalId}
+          />
+        )}
       </div>
 
       <div className="relative" ref={dateMenuRef}>

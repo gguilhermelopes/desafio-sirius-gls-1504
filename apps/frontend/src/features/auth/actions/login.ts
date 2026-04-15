@@ -1,10 +1,13 @@
-import { ApiError, apiFetch } from "../../../lib/api/fetcher";
-import { AuthUser, LoginRequest } from "@juscash/shared";
+"use server";
+
+import { cookies } from "next/headers";
+import { LoginRequest } from "@juscash/shared";
 import {
   AuthActionResult,
   loginSchema,
   mapFieldErrors,
 } from "../schemas/auth";
+import { authFetch, forwardAuthCookies } from "./auth-fetch";
 
 type LoginField = Extract<keyof LoginRequest, string>;
 
@@ -21,15 +24,13 @@ export async function loginAction(
     };
   }
 
-  try {
-    await apiFetch<AuthUser>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(parsed.data),
-    });
+  const response = await authFetch("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(parsed.data),
+  });
 
-    return { success: true };
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) {
+  if (!response.ok) {
+    if (response.status === 401) {
       return {
         error: "E-mail ou senha inválidos.",
         success: false,
@@ -41,4 +42,9 @@ export async function loginAction(
       success: false,
     };
   }
+
+  const cookieStore = await cookies();
+  forwardAuthCookies(response, cookieStore);
+
+  return { success: true };
 }

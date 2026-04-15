@@ -27,6 +27,6 @@ describe("LoginForm", () => {
     expect(html).toContain(">Entrar<");
     expect(html).toContain("Não tem conta?");
     expect(html).toContain(">Cadastre-se<");
-    expect(html).toContain("text-blue-600");
+    expect(html).toContain("text-[#105abc]");
   });
 });

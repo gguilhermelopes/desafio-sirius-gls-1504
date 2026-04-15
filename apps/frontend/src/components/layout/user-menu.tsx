@@ -111,7 +111,7 @@ export function UserMenu({
             {submitting ? `${messages.logout}...` : messages.logout}
           </button>
           {error ? (
-            <p className="m-0 font-sans text-[13px] font-normal leading-[1.4] text-[#9d231c]">
+            <p className="m-0 font-sans text-[13px] font-normal leading-[1.4] text-[#9d231c]" role="alert">
               {error}
             </p>
           ) : null}

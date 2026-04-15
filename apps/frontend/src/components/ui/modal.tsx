@@ -47,7 +47,7 @@ export function Modal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="flex flex-col bg-neutral-50 border border-neutral-300 rounded-2xl w-[640px] max-w-[calc(100vw-48px)] max-h-[calc(100vh-80px)] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-col bg-neutral-50 border border-neutral-300 rounded-2xl w-[640px] max-w-[calc(100vw-24px)] sm:max-w-[calc(100vw-48px)] max-h-[calc(100vh-48px)] sm:max-h-[calc(100vh-80px)] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </dialog>
